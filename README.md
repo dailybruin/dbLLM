@@ -16,6 +16,7 @@ pip install python-dotenv
 pip install jupyter
 pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
+pip install beautifulsoup4
 ```
 
 3. Create a .env file in the root directory of the project. This is the file that will store your API keys for Pinecone and Google Gemini.
