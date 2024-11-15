@@ -11,9 +11,6 @@ def findTotalPages(articles_per_page):
     total_pages = int(response.headers["X-WP-TotalPages"])
     total_articles = int(response.headers["x-WP-Total"])
 
-    # Print & return
-    print(total_pages, "pages found.")
-    print(total_articles, "articles found")
     return total_pages
 
 def fetchArticles(starting_page=1, ending_page=None):
@@ -71,15 +68,4 @@ def fetchArticles(starting_page=1, ending_page=None):
             return []
     
     # Return the articles array
-    print("Successfully fetched all articles.")
     return articles
-
-# Example usage
-"""
-    # Test that the function works
-    all_articles = fetchArticles(starting_page=1)
-    if (all_articles==-1):
-        print("Error fetching articles.")
-    else:
-        print(len(all_articles), "successfully fetched")
-"""
