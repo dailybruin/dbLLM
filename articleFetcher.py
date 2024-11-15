@@ -13,18 +13,20 @@ def findTotalPages(articles_per_page):
 
     return total_pages
 
-def fetchArticles(starting_page=1, ending_page=None):
+def fetchArticles(starting_page=1, ending_page=None, posts_per_page=100):
     """
-        Returns all articles (array) from the Daily Bruin article database.
-        Can optionally input starting and ending pages
-        Default function: get all articles
+        Get all articles as an array from the Daily Bruin article database.
+
+        @param starting_page: What page to start on, defualt is 1
+        @param ending_page: What page to end on, default is None (changed to last available page)
+        @param posts_per_page: How many posts to fetch per page from 1 to 100, default is 100
+        @return: An array of articles, with each element being in JSON format
     """
     url = "https://wp.dailybruin.com/wp-json/wp/v2/posts"
     articles = []
-    POSTS_PER_PAGE = 100
 
     # Find total pages to iterate through
-    total_pages = findTotalPages(POSTS_PER_PAGE)
+    total_pages = findTotalPages(posts_per_page)
 
     # If there was no input for ending page, make the ending page the last available page
     if ( ending_page is None ):
@@ -47,8 +49,8 @@ def fetchArticles(starting_page=1, ending_page=None):
     # Iterate through the pages
     page = starting_page
     while (page <= ending_page):
-        # Request POSTS_PER_PAGE articles from a given page
-        response = requests.get(url, params={"page": page, "per_page": POSTS_PER_PAGE})
+        # Request posts_per_page articles from a given page
+        response = requests.get(url, params={"page": page, "per_page": posts_per_page})
 
         # Only follow through if the response says successful
         if (response.status_code == 200):
