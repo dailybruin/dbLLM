@@ -1,5 +1,5 @@
 
-def embedArticle(genai, embeddings, embedding_model, article):
+def embedArticle(genai, embeddings: list, embedding_model: str, article):
     """
         Embed an article using a google gemini embedding model and append it to the embeddings array
 
@@ -32,14 +32,14 @@ def embedArticle(genai, embeddings, embedding_model, article):
     # Append the new embedding
     embeddings.append(new_embedding)
 
-def embedChunksAsArticle(genai, embeddings, embedding_model, article, split_texts):
+def embedChunksAsArticle(genai, embeddings: list, embedding_model: str, article, split_texts: list):
     """
         Embed chunks using a google gemini embedding model and append it to the embeddings array
 
         @param genai: The google gemini variable
         @param embeddings: The array of embeddings that we will append to
         @param embedding_model: As a string, what embedding model to use
-        @param article: The article, including its id, link, date, etc (not just the page content)
+        @param article: The article JSON, including its id, link, date, etc (not just the page content)
         @param split_texts: An array holding the split version of article (only the rendered page texts, not info like date or link)
         @return: A bool -  False if there was an error embedding, True if successful
     """
@@ -76,3 +76,25 @@ def embedChunksAsArticle(genai, embeddings, embedding_model, article, split_text
     embeddings.extend(new_embeddings)
     # Return True indicating success
     return True
+
+def generateQueryEmbedding(genai, embedding_model: str, query: str):
+    """
+    Convert a query to an embedding using google gemini
+
+    @param genai: The google gemini variable
+    @param embedding_model: As a string, what embedding model to use
+    @param query: The query string
+    """
+    # Convert the query to an embedding
+    try:
+        embedding = genai.embed_content(
+            model=embedding_model,
+            content=query
+        )
+
+        # Return the query embedding
+        return embedding["embedding"] 
+    # If an error, return None
+    except Exception as e:
+        print(f"Error generating query embedding: {e}")
+        return None
