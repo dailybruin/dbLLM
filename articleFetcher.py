@@ -71,3 +71,32 @@ def fetchArticles(starting_page=1, ending_page=None, posts_per_page=100):
     
     # Return the articles array
     return articles
+
+def fetchArticleById(id: str) -> str:
+    """
+    Fetch an uncleaned article with a corresponding id from the wordpress endpoint
+
+    @param id: The id of the article
+    @return: A string of the uncleaned article
+    """
+
+    # Get post based on id through wordpress endpoint
+    url = f"https://wp.dailybruin.com/wp-json/wp/v2/posts/{id}"
+    response = requests.get(url)
+    
+    # Only follow through if the response says successful
+    if (response.status_code == 200):
+        try:
+            # Get the content of the article (exclude metadata)
+            responseJSON = response.json()
+            content = responseJSON['content']['rendered']
+
+            return content
+        except:
+            # We couldn't convert the article into a JSON
+            print("Error producing JSON from page corresponding with id {id}")
+            return ""
+    else:
+        # If the request was unsuccessful, write out error and terminate function
+        print(f"Error with fetching the page corresopnding with id {id}")
+        return ""
