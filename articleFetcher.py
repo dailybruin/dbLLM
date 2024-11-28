@@ -13,7 +13,7 @@ def findTotalPages(articles_per_page):
 
     return total_pages
 
-def fetchArticles(starting_page=1, ending_page=None, posts_per_page=100):
+def fetchArticles(starting_page=1, ending_page=None, posts_per_page=100) -> list:
     """
         Get all articles as an array from the Daily Bruin article database.
 
