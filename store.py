@@ -102,6 +102,8 @@ for i, article in enumerate(articles):
             # If the embed of chunks was successful, print to indicate
             if (embed_success):
                 print(f"Successfully split into {len(texts)} chunks.")
+            else:
+                print(f"Error generating embedding for article {article_id}. Could not split into chunks.")
     # If the article is missing an id or content, skip it
     else:
         if article_id:

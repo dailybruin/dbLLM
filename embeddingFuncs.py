@@ -68,7 +68,7 @@ def embedChunksAsArticle(genai, embeddings: list, embedding_model: str, article,
             })
         # If there was an error embedding
         except Exception as e:
-            print(f"Error generating embedding for article {article['id']}: {e}. Could not split into chunks.")
+            print(e)
             # Return false indicating error (embeddings remains unchanged)
             return False
     
