@@ -34,6 +34,17 @@ CHUNK_OVERLAP = 200
 if (DATABASE_INDEX_NAME == ""):
     DATABASE_INDEX_NAME = "768dim"
 
+LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a new txt file (y/n)? "))
+if LOG_SKIPPED_ARTICLES != "y" and LOG_SKIPPED_ARTICLES != "n":
+    LOG_SKIPPED_ARTICLES = "y"
+
+if (LOG_SKIPPED_ARTICLES == "y"):
+    if not os.path.exists("./skipped_articles"):
+        os.mkdir("./skipped_articles")
+        log_file = open("./skipped_articles/log.txt", "a")
+        log_file.write("id code\n")
+        log_file.close()
+
 print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
 
@@ -51,6 +62,13 @@ except:
 
 # Store articles in segments (incase of runtime failure)
 EVERY_N = 5
+
+
+statusCodeDict = {
+    1: "Error splitting chunks",
+    2: "No content", 
+    3: "No ID"
+}
 
 # Loop through every n articles
 curr_page = STARTING_PAGE
@@ -112,14 +130,29 @@ while (curr_page <= ENDING_PAGE):
                     print(f"Successfully split into {len(texts)} chunks.")
                 else:
                     print(f"Error generating embedding for article {article_id}. Could not split into chunks.")
+                    if LOG_SKIPPED_ARTICLES=="y":
+                        f = open("./skipped_articles/log.txt", "a")
+                        f.write(f"{article_id} {1}\n")
+                        f.close()
+
         # If the article is missing an id or content, skip it
         else:
             if article_id:
                 # No content
                 print(f"\nSkipping article with missing content (ID {article_id}, index {i})")
+                if LOG_SKIPPED_ARTICLES=="y":
+                        f = open("./skipped_articles/log.txt", "a")
+                        f.write(f"{article_id} {2}\n")
+                        f.close()
+
             else:
                 # No ID
-                print(f"\nSkipping article with no content (index {i})")
+                print(f"\nSkipping article with no ID (index {i})")
+                if LOG_SKIPPED_ARTICLES=="y":
+                        f = open("./skipped_articles/log.txt", "a")
+                        f.write(f"{article_id} {3}\n")
+                        f.close()
+
         
         # Print a progress bar (updates every {update_factor} articles)
         if i % update_factor == 0 or i == ARTICLES_LEN-1:
@@ -132,7 +165,6 @@ while (curr_page <= ENDING_PAGE):
             print(f"\r{'#'*(round((i+update_factor)/update_factor))}{' '*(round( (ARTICLES_LEN-(i+update_factor))/update_factor ))} {percent}%", end='', flush=True)
 
     print(f"\nSuccessfully created {len(embeddings)} embeddings")
-
 
     """ 
     /////////////////////////////////
