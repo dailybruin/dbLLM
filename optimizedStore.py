@@ -38,10 +38,14 @@ LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a ne
 if LOG_SKIPPED_ARTICLES != "y" and LOG_SKIPPED_ARTICLES != "n":
     LOG_SKIPPED_ARTICLES = "y"
 
+# If we decide to log skipped articles
 if (LOG_SKIPPED_ARTICLES == "y"):
+    # Make a new directory ./skipped_articles/log.txt
     if not os.path.exists("./skipped_articles"):
         os.mkdir("./skipped_articles")
         log_file = open("./skipped_articles/log.txt", "a")
+
+        # Write headers
         log_file.write("id code\n")
         log_file.close()
 
@@ -62,7 +66,6 @@ except:
 
 # Store articles in segments (incase of runtime failure)
 EVERY_N = 5
-
 
 statusCodeDict = {
     1: "Error splitting chunks",
@@ -130,6 +133,8 @@ while (curr_page <= ENDING_PAGE):
                     print(f"Successfully split into {len(texts)} chunks.")
                 else:
                     print(f"Error generating embedding for article {article_id}. Could not split into chunks.")
+
+                    # Log skipped article
                     if LOG_SKIPPED_ARTICLES=="y":
                         f = open("./skipped_articles/log.txt", "a")
                         f.write(f"{article_id} {1}\n")
@@ -140,6 +145,8 @@ while (curr_page <= ENDING_PAGE):
             if article_id:
                 # No content
                 print(f"\nSkipping article with missing content (ID {article_id}, index {i})")
+
+                # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
                         f = open("./skipped_articles/log.txt", "a")
                         f.write(f"{article_id} {2}\n")
@@ -148,6 +155,8 @@ while (curr_page <= ENDING_PAGE):
             else:
                 # No ID
                 print(f"\nSkipping article with no ID (index {i})")
+
+                # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
                         f = open("./skipped_articles/log.txt", "a")
                         f.write(f"{article_id} {3}\n")
@@ -162,7 +171,7 @@ while (curr_page <= ENDING_PAGE):
             # Otherwise, set percent to the ratio of index of current article and length of articles
             else:
                 percent = str(round((i+update_factor)*100/ARTICLES_LEN, 2))
-            print(f"\r{'#'*(round((i+update_factor)/update_factor))}{' '*(round( (ARTICLES_LEN-(i+update_factor))/update_factor ))} {percent}%", end='', flush=True)
+            print(f"\n\r{'#'*(round((i+update_factor)/update_factor))}{' '*(round( (ARTICLES_LEN-(i+update_factor))/update_factor ))} {percent}%", end='', flush=True)
 
     print(f"\nSuccessfully created {len(embeddings)} embeddings")
 
