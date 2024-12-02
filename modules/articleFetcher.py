@@ -98,5 +98,5 @@ def fetchArticleById(id: str) -> str:
             return ""
     else:
         # If the request was unsuccessful, write out error and terminate function
-        print(f"Error with fetching the page corresopnding with id {id}")
+        print(f"Error with fetching the page corresponding with id {id}")
         return ""

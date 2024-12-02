@@ -71,10 +71,16 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 context = ""
 
 for result in results['matches']:
-    id = result['id']
+    # Get ID (incase it's a chunk, only get whatever is before '_' - ex: 18352_chunk0)
+    id = result['id'].split('_')[0]
+
+    # Get article
     article = fetchArticleById(id)
+
+    # Clean article
     cleanedArticle = clean_article(article)
 
+    # Add context to feed into LLM
     link = result['metadata']['link']
     context += f"""\nARTICLE START (Source: {link})\n
     {cleanedArticle}
@@ -100,7 +106,10 @@ START CONTEXT BLOCK
 END OF CONTEXT BLOCK
 """
 
+# Generate a response
 response = model.generate_content(instructions)
+
+# Display response
 print("Response created:\n")
 print(response.text)
 print("----FINISHED GENERATING RESPONSE----")
