@@ -6,10 +6,10 @@ from pinecone.grpc import PineconeGRPC as Pinecone
 import google.generativeai as genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from articleCleaner import clean_all_articles
-from articleFetcher import fetchArticles
-from embeddingFuncs import embedArticle
-from embeddingFuncs import embedChunksAsArticle
+from modules.articleCleaner import clean_all_articles
+from modules.articleFetcher import fetchArticles
+from modules.embeddingFuncs import embedArticle
+from modules.embeddingFuncs import embedChunksAsArticle
 
 print("\n----LOADING ENVIRONMENT VARIABLES----")
 # Load environment variables from .env file

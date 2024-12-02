@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 from pinecone.grpc import PineconeGRPC as Pinecone
 import google.generativeai as genai
 
-from articleCleaner import clean_article
-from articleFetcher import fetchArticleById
-from embeddingFuncs import generateQueryEmbedding
+from modules.articleCleaner import clean_article
+from modules.articleFetcher import fetchArticleById
+from modules.embeddingFuncs import generateQueryEmbedding
 
 print("\n----LOADING ENVIRONMENT VARIABLES----")
 # Load environment variables from .env file
