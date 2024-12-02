@@ -130,9 +130,9 @@ while (curr_page <= ENDING_PAGE):
 
                 # If the embed of chunks was successful, print to indicate
                 if (embed_success):
-                    print(f"Successfully split into {len(texts)} chunks.")
+                    print(f"Successfully split into {len(texts)} chunks.\n")
                 else:
-                    print(f"Error generating embedding for article {article_id}. Could not split into chunks.")
+                    print(f"Error generating embedding for article {article_id}. Could not split into chunks.\n")
 
                     # Log skipped article
                     if LOG_SKIPPED_ARTICLES=="y":
@@ -144,7 +144,7 @@ while (curr_page <= ENDING_PAGE):
         else:
             if article_id:
                 # No content
-                print(f"\nSkipping article with missing content (ID {article_id}, index {i})")
+                print(f"\nSkipping article with missing content (ID {article_id}, index {i})\n")
 
                 # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
@@ -154,7 +154,7 @@ while (curr_page <= ENDING_PAGE):
 
             else:
                 # No ID
-                print(f"\nSkipping article with no ID (index {i})")
+                print(f"\nSkipping article with no ID (index {i})\n")
 
                 # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
@@ -171,7 +171,7 @@ while (curr_page <= ENDING_PAGE):
             # Otherwise, set percent to the ratio of index of current article and length of articles
             else:
                 percent = str(round((i+update_factor)*100/ARTICLES_LEN, 2))
-            print(f"\n\r{'#'*(round((i+update_factor)/update_factor))}{' '*(round( (ARTICLES_LEN-(i+update_factor))/update_factor ))} {percent}%", end='', flush=True)
+            print(f"\r{'#'*(round((i+update_factor)/update_factor))}{' '*(round( (ARTICLES_LEN-(i+update_factor))/update_factor ))} {percent}%", end='', flush=True)
 
     print(f"\nSuccessfully created {len(embeddings)} embeddings")
 
