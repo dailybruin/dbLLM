@@ -28,7 +28,12 @@ PINECONE_API_KEY="your_pinecone_api_key"
 ```
 
 - To get your Google Gemini API key, go to https://aistudio.google.com/apikey and click the bright blue "Get API Key" button on the top left
-- To get your Pinecton API key, go to your Pinecone account, click "API Keys"
+- To get your Pinecone API key, go to your Pinecone account, click "API Keys"
 
 Replace the values in the quotes with your own API keys
+
+5. Run store.py or optimizedStore.py to store articles into the database
+
+   
+7. Run query.py to run a query and get a response
 
