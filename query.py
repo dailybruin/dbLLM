@@ -30,6 +30,19 @@ EMBEDDING_MODEL = "models/text-embedding-004"
 if (DATABASE_INDEX_NAME == ""):
     DATABASE_INDEX_NAME = "768dim"
 
+# Wait for the index to be ready
+try:
+    while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
+        print("Waiting for index...")
+        time.sleep(1)
+
+    print("Index connected.")
+except Exception as e:
+    print("Invalid index name.")
+    exit()
+    
+index = pc.Index(DATABASE_INDEX_NAME)
+
 print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
 """ 
@@ -43,14 +56,6 @@ query = str(input("Ask any question: "))
 embedding = generateQueryEmbedding(genai=genai,
                                    embedding_model=EMBEDDING_MODEL,
                                    query=query)
-
-# Wait for the index to be ready
-while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
-    print("Waiting for index...")
-    time.sleep(1)
-
-print("Index connected.")
-index = pc.Index(DATABASE_INDEX_NAME)
 
 results = index.query(
     vector=embedding,
