@@ -1,6 +1,5 @@
 import os
 import time
-from datetime import datetime
 from dotenv import load_dotenv
 
 from pinecone.grpc import PineconeGRPC as Pinecone
@@ -11,6 +10,7 @@ from modules.articleCleaner import clean_all_articles
 from modules.articleFetcher import fetchArticles
 from modules.embeddingFuncs import embedArticle
 from modules.embeddingFuncs import embedChunksAsArticle
+from modules.Logger import Logger
 
 print("\n----LOADING ENVIRONMENT VARIABLES----")
 # Load environment variables from .env file
@@ -43,24 +43,9 @@ DISPLAY_SKIPPED_ARTICLES = str(input("Would you like to display info about skipp
 if DISPLAY_SKIPPED_ARTICLES != "y" and DISPLAY_SKIPPED_ARTICLES != "n":
     DISPLAY_SKIPPED_ARTICLES = "y"
 
-LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a new txt file (y/n)? "))
+LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a new log file (y/n)? "))
 if LOG_SKIPPED_ARTICLES != "y" and LOG_SKIPPED_ARTICLES != "n":
     LOG_SKIPPED_ARTICLES = "y"
-
-LOG_FILE_NAME = f"log-{datetime.today().strftime('%Y-%m-%d--%H:%M:%S')}.txt"
-LOG_FILE_PATH = f"./skipped_articles/{LOG_FILE_NAME}"
-# If we decide to log skipped articles
-if (LOG_SKIPPED_ARTICLES == "y"):
-    # Make a new directory ./skipped_articles (or make sure it exists)
-    if not os.path.exists("./skipped_articles"):
-        os.mkdir("./skipped_articles")
-
-    # Title log file with current date
-    log_file = open(LOG_FILE_PATH, "a")
-
-    # Write headers
-    log_file.write("id code\n")
-    log_file.close()
 
 print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
@@ -80,12 +65,20 @@ except:
 # Store articles in segments (incase of runtime failure)
 EVERY_N = 5
 
-statusCodeDict = {
-    1: "Error splitting chunks",
-    2: "No content", 
-    3: "No ID"
-}
+logger = Logger(storage_path="./logs",
+                    index_name=DATABASE_INDEX_NAME,
+                    logging_enabled=LOG_SKIPPED_ARTICLES,
+                    display_skipped_articles=DISPLAY_SKIPPED_ARTICLES,
+                    starting_page=STARTING_PAGE,
+                    ending_page=ENDING_PAGE)
 
+# If we decide to log skipped articles
+if (LOG_SKIPPED_ARTICLES == "y"):
+    if logger.create_log_file() == False:
+        print("Invalid parent directory for logging. Exiting.")
+        exit()
+
+logger.start_fetching_articles_section()
 # Loop through every n articles
 curr_page = STARTING_PAGE
 while (curr_page <= ENDING_PAGE):
@@ -104,9 +97,13 @@ while (curr_page <= ENDING_PAGE):
     if (articles):
         # Clean articles
         print(len(articles), "articles successfully fetched")
+        logger.log_successful_article_fetch(curr_page, end_segment)
+
         clean_all_articles(articles)
     else:
         print("Error fetching articles.")
+        logger.log_failed_article_fetch(curr_page, end_segment)
+        logger.end_log(f"FATAL ERROR: COULD NOT FETCH ARTICLES {curr_page}-{end_segment}")
         exit()
 
     """ 
@@ -121,6 +118,8 @@ while (curr_page <= ENDING_PAGE):
     update_factor = max(1, len(articles) // 100)
 
     print(f"Generating embeddings for {ARTICLES_LEN} articles")
+    logger.start_embedding_section(start_page=curr_page,
+                                   end_page=end_segment)
 
     for i, article in enumerate(articles):
         content = article['content']['rendered']
@@ -154,9 +153,7 @@ while (curr_page <= ENDING_PAGE):
 
                     # Log skipped article
                     if LOG_SKIPPED_ARTICLES=="y":
-                        f = open(LOG_FILE_PATH, "a")
-                        f.write(f"{article_id} {1}\n")
-                        f.close()
+                        logger.log_chunking_error(article_id=article_id)
 
         # If the article is missing an id or content, skip it
         else:
@@ -167,9 +164,7 @@ while (curr_page <= ENDING_PAGE):
 
                 # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
-                        f = open(LOG_FILE_PATH, "a")
-                        f.write(f"{article_id} {2}\n")
-                        f.close()
+                    logger.log_missing_content(article_id=article_id)
 
             else:
                 # No ID
@@ -178,9 +173,7 @@ while (curr_page <= ENDING_PAGE):
 
                 # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
-                        f = open(LOG_FILE_PATH, "a")
-                        f.write(f"{article_id} {3}\n")
-                        f.close()
+                        logger.log_missing_id()
 
         
         # Print a progress bar (updates every {update_factor} articles)
@@ -200,6 +193,9 @@ while (curr_page <= ENDING_PAGE):
     //////  Upsert Data
     /////////////////////////////////
     """
+
+    logger.start_upserting_section(start_page=curr_page,
+                                   end_page=end_segment)
     # Wait for the index to be ready
     while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
         print("Waiting for index...")
@@ -214,5 +210,8 @@ while (curr_page <= ENDING_PAGE):
     print("---------------------------------------------------------")
     print(f"\nSuccessfully upserted {len(embeddings)} embeddings.\n")
     print("---------------------------------------------------------")
+    logger.log_successful_upsert(len(embeddings))
 
     curr_page = end_segment + 1
+
+logger.end_log()

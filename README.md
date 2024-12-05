@@ -32,7 +32,7 @@ PINECONE_API_KEY="your_pinecone_api_key"
 
 Replace the values in the quotes with your own API keys
 
-5. Run store.py or optimizedStore.py to store articles into the database
+5. Run store.py to store articles into the database
 
    
 7. Run query.py to run a query and get a response

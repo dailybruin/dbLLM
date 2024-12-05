@@ -3,4 +3,4 @@
 __pycache__
 
 # Log files
-*.txt
+*.log
