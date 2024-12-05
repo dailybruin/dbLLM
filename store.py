@@ -100,6 +100,10 @@ while (curr_page <= ENDING_PAGE):
         logger.log_successful_article_fetch(curr_page, end_segment)
 
         clean_all_articles(articles)
+
+        # Store ID of first (most recent) article found
+        if (curr_page == STARTING_PAGE):
+            logger.store_latest_id(str(articles[0]['id']))
     else:
         print("Error fetching articles.")
         logger.log_failed_article_fetch(curr_page, end_segment)

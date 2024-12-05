@@ -100,3 +100,28 @@ def fetchArticleById(id: str) -> str:
         # If the request was unsuccessful, write out error and terminate function
         print(f"Error with fetching the page corresponding with id {id}")
         return ""
+    
+def getLatestArtiles(last_checked_id: str) -> list:
+    """
+    Gets the latest articles up to the last article id that we checked
+    """
+    articles = []
+    page_num = 1
+    id_found = False
+
+    while True:
+        one_page_articles = fetchArticles(starting_page=page_num,
+                                        ending_page=page_num)
+        if one_page_articles == []:
+            return []
+        
+        for article in one_page_articles:
+            if str(article['id']) == last_checked_id:
+                id_found = True
+                break
+
+            articles.append(article)
+
+        if id_found == True:
+            return articles
+        page_num += 1

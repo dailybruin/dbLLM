@@ -22,6 +22,7 @@ class Logger:
         self._ending_page = ending_page
 
         self._end_message = "N/A"
+        self._latest_id = "N/A"
 
         self._info_log = f"""
 ===GENERAL INFORMATION===
@@ -33,6 +34,7 @@ Logging Enabled: {self._logging_enabled}
 Display skipped articles: {self._display_skipped_articles}
 Starting Page: {self._starting_page}
 Ending Page: {self._ending_page}
+Most Recent Article's ID: {self._latest_id}
 """
         self._fetching_log = ""
         self._embedding_log = ""
@@ -53,6 +55,10 @@ Ending Page: {self._ending_page}
     def end_log(self, message="Successful"):
         self._time_finished = self._get_timestamp()
         self._end_message = message
+        self._refresh_log()
+
+    def store_latest_id(self, article_id: str):
+        self._latest_id = article_id
         self._refresh_log()
     
     def start_fetching_articles_section(self):
@@ -102,6 +108,7 @@ Logging Enabled: {self._logging_enabled}
 Display skipped articles: {self._display_skipped_articles}
 Starting Page: {self._starting_page}
 Ending Page: {self._ending_page}
+Most Recent Article's ID: {self._latest_id}
 """
         self._runtime_log = self._fetching_log + self._embedding_log + self._upserting_log
 
