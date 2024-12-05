@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 from dotenv import load_dotenv
 
 from pinecone.grpc import PineconeGRPC as Pinecone
@@ -38,13 +39,32 @@ if DATABASE_INDEX_NAME not in pc.list_indexes().names():
     print("Invalid index name. Exiting.")
     exit()
 
+DISPLAY_SKIPPED_ARTICLES = str(input("Would you like to display info about skipped or chunked articles (y/n)? "))
+if DISPLAY_SKIPPED_ARTICLES != "y" and DISPLAY_SKIPPED_ARTICLES != "n":
+    DISPLAY_SKIPPED_ARTICLES = "y"
+
+LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a new txt file (y/n)? "))
+if LOG_SKIPPED_ARTICLES != "y" and LOG_SKIPPED_ARTICLES != "n":
+    LOG_SKIPPED_ARTICLES = "y"
+
+LOG_FILE_NAME = f"log-{datetime.today().strftime('%Y-%m-%d--%H:%M:%S')}.txt"
+LOG_FILE_PATH = f"./skipped_articles/{LOG_FILE_NAME}"
+# If we decide to log skipped articles
+if (LOG_SKIPPED_ARTICLES == "y"):
+    # Make a new directory ./skipped_articles (or make sure it exists)
+    if not os.path.exists("./skipped_articles"):
+        os.mkdir("./skipped_articles")
+
+    # Title log file with current date
+    log_file = open(LOG_FILE_PATH, "a")
+
+    # Write headers
+    log_file.write("id code\n")
+    log_file.close()
+
 print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
-""" 
-/////////////////////////////////
-//////  Fetch and Clean Articles
-/////////////////////////////////
-"""
+
 print("\n----FETCHING ARTICLES----")
 
 # Fetch articles
@@ -53,99 +73,146 @@ try:
 except:
     STARTING_PAGE = 1
 try:
-    ENDING_PAGE = int(input("Enter ending page (hit enter for default of 3): "))
+    ENDING_PAGE = int(input("Enter ending page (hit enter for default of 10): "))
 except:
-    ENDING_PAGE = 3
+    ENDING_PAGE = 10
 
+# Store articles in segments (incase of runtime failure)
+EVERY_N = 5
 
-articles = fetchArticles(starting_page=STARTING_PAGE, ending_page=ENDING_PAGE)
+statusCodeDict = {
+    1: "Error splitting chunks",
+    2: "No content", 
+    3: "No ID"
+}
 
-if (articles):
-    # Clean articles
-    print(len(articles), "articles successfully fetched")
-    clean_all_articles(articles)
-else:
-    print("Error fetching articles.")
-    exit()
-
-print("----FINISHED FETCHING ARTICLES----")
-
-""" 
-/////////////////////////////////
-//////  Embed Articles
-/////////////////////////////////
-"""
-print("\n----GENERATING EMBEDDINGS----", end="\n")
-# Generate embeddings
-embeddings = []
-ARTICLES_LEN = len(articles)
-# Dynamic step calculation
-update_factor = max(1, len(articles) // 100)
-
-for i, article in enumerate(articles):
-    content = article['content']['rendered']
-    article_id = str(article['id'])
+# Loop through every n articles
+curr_page = STARTING_PAGE
+while (curr_page <= ENDING_PAGE):
+    # Calculate how many pages to search (either 5, or if we're near the end, less than 5)
+    page_range = min(4, ENDING_PAGE-curr_page)
+    end_segment = curr_page + page_range
+    print(f"Getting pages {curr_page}-{end_segment}")
     
-    # Only run if there is both content to embed and an id to associate it with
-    if content and article_id:
-        try:
-            # Embed the article
-            embedArticle(genai, embeddings, EMBEDDING_MODEL, article)
-        
-        # The article may be too big. In that case, try splitting it into chunks
-        except Exception as e:
-            print(f"\nError generating embedding for article {article_id}: {e} (index {i}). Attempting to split into chunks...")
-            
-            # Split text into chunks of up to 10000
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=(MODEL_MAX_CHUNKS-CHUNK_OVERLAP), chunk_overlap=CHUNK_OVERLAP)
-            texts = text_splitter.split_text(content)
+    """ 
+    /////////////////////////////////
+    //////  Fetch and Clean Articles
+    /////////////////////////////////
+    """
+    articles = fetchArticles(starting_page=curr_page, ending_page=end_segment)
 
-            # Embed the chunks
-            embed_success = embedChunksAsArticle(genai, embeddings, EMBEDDING_MODEL, article, texts)
-
-            # If the embed of chunks was successful, print to indicate
-            if (embed_success):
-                print(f"Successfully split into {len(texts)} chunks.")
-            else:
-                print(f"Error generating embedding for article {article_id}. Could not split into chunks.")
-    # If the article is missing an id or content, skip it
+    if (articles):
+        # Clean articles
+        print(len(articles), "articles successfully fetched")
+        clean_all_articles(articles)
     else:
-        if article_id:
-            # No content
-            print(f"\nSkipping article with missing content (ID {article_id}, index {i})")
+        print("Error fetching articles.")
+        exit()
+
+    """ 
+    /////////////////////////////////
+    //////  Embed Articles
+    /////////////////////////////////
+    """
+    # Generate embeddings
+    embeddings = []
+    ARTICLES_LEN = len(articles)
+    # Dynamic step calculation
+    update_factor = max(1, len(articles) // 100)
+
+    print(f"Generating embeddings for {ARTICLES_LEN} articles")
+
+    for i, article in enumerate(articles):
+        content = article['content']['rendered']
+        article_id = str(article['id'])
+        
+        # Only run if there is both content to embed and an id to associate it with
+        if content and article_id:
+            try:
+                # Embed the article
+                embedArticle(genai, embeddings, EMBEDDING_MODEL, article)
+            
+            # The article may be too big. In that case, try splitting it into chunks
+            except Exception as e:
+                if DISPLAY_SKIPPED_ARTICLES=="y":
+                    print(f"\nError generating embedding for article {article_id}: {e} (index {i}). Attempting to split into chunks...")
+                
+                # Split text into chunks of up to 10000
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=(MODEL_MAX_CHUNKS-CHUNK_OVERLAP), chunk_overlap=CHUNK_OVERLAP)
+                texts = text_splitter.split_text(content)
+
+                # Embed the chunks
+                embed_success = embedChunksAsArticle(genai, embeddings, EMBEDDING_MODEL, article, texts)
+
+                # If the embed of chunks was successful, print to indicate
+                if (embed_success):
+                    if DISPLAY_SKIPPED_ARTICLES=="y":
+                        print(f"Successfully split into {len(texts)} chunks.\n")
+                else:
+                    if DISPLAY_SKIPPED_ARTICLES=="y":
+                        print(f"Error generating embedding for article {article_id}. Could not split into chunks.\n")
+
+                    # Log skipped article
+                    if LOG_SKIPPED_ARTICLES=="y":
+                        f = open(LOG_FILE_PATH, "a")
+                        f.write(f"{article_id} {1}\n")
+                        f.close()
+
+        # If the article is missing an id or content, skip it
         else:
-            # No ID
-            print(f"\nSkipping article with no content (index {i})")
-    
-    # Print a progress bar (updates every {update_factor} articles)
-    if i % update_factor == 0 or i == ARTICLES_LEN-1:
-        # If we finished, set the percent to 100
-        if (i == ARTICLES_LEN-1):
-            percent = 100.0
-        # Otherwise, set percent to the ratio of index of current article and length of articles
-        else:
-            percent = str(round((i+update_factor)*100/ARTICLES_LEN, 2))
-        print(f"\r{'#'*(round((i+update_factor)/update_factor))}{' '*(round( (ARTICLES_LEN-(i+update_factor))/update_factor ))} {percent}%", end='', flush=True)
+            if article_id:
+                # No content
+                if DISPLAY_SKIPPED_ARTICLES=="y":
+                    print(f"\nSkipping article with missing content (ID {article_id}, index {i})\n")
 
-print(f"\nSuccessfully created {len(embeddings)} embeddings")
-print("----FINISHED GENERATING EMBEDDINGS----")
+                # Log skipped article
+                if LOG_SKIPPED_ARTICLES=="y":
+                        f = open(LOG_FILE_PATH, "a")
+                        f.write(f"{article_id} {2}\n")
+                        f.close()
 
-""" 
-/////////////////////////////////
-//////  Upsert Data
-/////////////////////////////////
-"""
-print("\n----UPSERTING DATA----")
-# Wait for the index to be ready
-while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
-    print("Waiting for index...")
-    time.sleep(1)
+            else:
+                # No ID
+                if DISPLAY_SKIPPED_ARTICLES=="y":
+                    print(f"\nSkipping article with no ID (index {i})\n")
 
-print("Index connected.")
-index = pc.Index(DATABASE_INDEX_NAME)
+                # Log skipped article
+                if LOG_SKIPPED_ARTICLES=="y":
+                        f = open(LOG_FILE_PATH, "a")
+                        f.write(f"{article_id} {3}\n")
+                        f.close()
 
-index.upsert(
-    vectors=embeddings
-)
-print("Successfully upserted articles.")
-print("----FINISHED UPSERTING DATA----")
+        
+        # Print a progress bar (updates every {update_factor} articles)
+        if i % update_factor == 0 or i == ARTICLES_LEN-1:
+            # If we finished, set the percent to 100
+            if (i == ARTICLES_LEN-1):
+                percent = 100.0
+            # Otherwise, set percent to the ratio of index of current article and length of articles
+            else:
+                percent = str(round((i+update_factor)*100/ARTICLES_LEN, 2))
+            print(f"\r{'#'*(round((i+update_factor)/update_factor))}{' '*(round( (ARTICLES_LEN-(i+update_factor))/update_factor ))} {percent}%", end='', flush=True)
+
+    print(f"\nSuccessfully created {len(embeddings)} embeddings")
+
+    """ 
+    /////////////////////////////////
+    //////  Upsert Data
+    /////////////////////////////////
+    """
+    # Wait for the index to be ready
+    while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
+        print("Waiting for index...")
+        time.sleep(1)
+
+    print("Index connected.")
+    index = pc.Index(DATABASE_INDEX_NAME)
+
+    index.upsert(
+        vectors=embeddings
+    )
+    print("---------------------------------------------------------")
+    print(f"\nSuccessfully upserted {len(embeddings)} embeddings.\n")
+    print("---------------------------------------------------------")
+
+    curr_page = end_segment + 1
