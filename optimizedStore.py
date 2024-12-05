@@ -34,6 +34,10 @@ CHUNK_OVERLAP = 200
 if (DATABASE_INDEX_NAME == ""):
     DATABASE_INDEX_NAME = "768dim"
 
+if DATABASE_INDEX_NAME not in pc.list_indexes().names():
+    print("Invalid index name. Exiting.")
+    exit()
+
 LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a new txt file (y/n)? "))
 if LOG_SKIPPED_ARTICLES != "y" and LOG_SKIPPED_ARTICLES != "n":
     LOG_SKIPPED_ARTICLES = "y"

@@ -76,7 +76,8 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 context = ""
 
 for result in results['matches']:
-    # Get ID (incase it's a chunk, only get whatever is before '_' - ex: 18352_chunk0)
+    # Get ID (incase it's a chunk, only get whatever is before '_')
+    # ex: if id="18352_chunk0", we only want id="18352"
     id = result['id'].split('_')[0]
 
     # Get article

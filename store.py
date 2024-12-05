@@ -34,6 +34,10 @@ CHUNK_OVERLAP = 200
 if (DATABASE_INDEX_NAME == ""):
     DATABASE_INDEX_NAME = "768dim"
 
+if DATABASE_INDEX_NAME not in pc.list_indexes().names():
+    print("Invalid index name. Exiting.")
+    exit()
+
 print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
 """ 
