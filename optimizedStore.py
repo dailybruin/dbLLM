@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime
 from dotenv import load_dotenv
 
 from pinecone.grpc import PineconeGRPC as Pinecone
@@ -38,20 +39,28 @@ if DATABASE_INDEX_NAME not in pc.list_indexes().names():
     print("Invalid index name. Exiting.")
     exit()
 
+DISPLAY_SKIPPED_ARTICLES = str(input("Would you like to display info about skipped or chunked articles (y/n)? "))
+if DISPLAY_SKIPPED_ARTICLES != "y" and DISPLAY_SKIPPED_ARTICLES != "n":
+    DISPLAY_SKIPPED_ARTICLES = "y"
+
 LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a new txt file (y/n)? "))
 if LOG_SKIPPED_ARTICLES != "y" and LOG_SKIPPED_ARTICLES != "n":
     LOG_SKIPPED_ARTICLES = "y"
 
+LOG_FILE_NAME = f"log-{datetime.today().strftime('%Y-%m-%d--%H:%M:%S')}.txt"
+LOG_FILE_PATH = f"./skipped_articles/{LOG_FILE_NAME}"
 # If we decide to log skipped articles
 if (LOG_SKIPPED_ARTICLES == "y"):
-    # Make a new directory ./skipped_articles/log.txt
+    # Make a new directory ./skipped_articles (or make sure it exists)
     if not os.path.exists("./skipped_articles"):
         os.mkdir("./skipped_articles")
-        log_file = open("./skipped_articles/log.txt", "a")
 
-        # Write headers
-        log_file.write("id code\n")
-        log_file.close()
+    # Title log file with current date
+    log_file = open(LOG_FILE_PATH, "a")
+
+    # Write headers
+    log_file.write("id code\n")
+    log_file.close()
 
 print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
@@ -111,6 +120,8 @@ while (curr_page <= ENDING_PAGE):
     # Dynamic step calculation
     update_factor = max(1, len(articles) // 100)
 
+    print(f"Generating embeddings for {ARTICLES_LEN} articles")
+
     for i, article in enumerate(articles):
         content = article['content']['rendered']
         article_id = str(article['id'])
@@ -123,7 +134,8 @@ while (curr_page <= ENDING_PAGE):
             
             # The article may be too big. In that case, try splitting it into chunks
             except Exception as e:
-                print(f"\nError generating embedding for article {article_id}: {e} (index {i}). Attempting to split into chunks...")
+                if DISPLAY_SKIPPED_ARTICLES=="y":
+                    print(f"\nError generating embedding for article {article_id}: {e} (index {i}). Attempting to split into chunks...")
                 
                 # Split text into chunks of up to 10000
                 text_splitter = RecursiveCharacterTextSplitter(chunk_size=(MODEL_MAX_CHUNKS-CHUNK_OVERLAP), chunk_overlap=CHUNK_OVERLAP)
@@ -134,13 +146,15 @@ while (curr_page <= ENDING_PAGE):
 
                 # If the embed of chunks was successful, print to indicate
                 if (embed_success):
-                    print(f"Successfully split into {len(texts)} chunks.\n")
+                    if DISPLAY_SKIPPED_ARTICLES=="y":
+                        print(f"Successfully split into {len(texts)} chunks.\n")
                 else:
-                    print(f"Error generating embedding for article {article_id}. Could not split into chunks.\n")
+                    if DISPLAY_SKIPPED_ARTICLES=="y":
+                        print(f"Error generating embedding for article {article_id}. Could not split into chunks.\n")
 
                     # Log skipped article
                     if LOG_SKIPPED_ARTICLES=="y":
-                        f = open("./skipped_articles/log.txt", "a")
+                        f = open(LOG_FILE_PATH, "a")
                         f.write(f"{article_id} {1}\n")
                         f.close()
 
@@ -148,21 +162,23 @@ while (curr_page <= ENDING_PAGE):
         else:
             if article_id:
                 # No content
-                print(f"\nSkipping article with missing content (ID {article_id}, index {i})\n")
+                if DISPLAY_SKIPPED_ARTICLES=="y":
+                    print(f"\nSkipping article with missing content (ID {article_id}, index {i})\n")
 
                 # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
-                        f = open("./skipped_articles/log.txt", "a")
+                        f = open(LOG_FILE_PATH, "a")
                         f.write(f"{article_id} {2}\n")
                         f.close()
 
             else:
                 # No ID
-                print(f"\nSkipping article with no ID (index {i})\n")
+                if DISPLAY_SKIPPED_ARTICLES=="y":
+                    print(f"\nSkipping article with no ID (index {i})\n")
 
                 # Log skipped article
                 if LOG_SKIPPED_ARTICLES=="y":
-                        f = open("./skipped_articles/log.txt", "a")
+                        f = open(LOG_FILE_PATH, "a")
                         f.write(f"{article_id} {3}\n")
                         f.close()
 
