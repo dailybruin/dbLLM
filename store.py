@@ -27,13 +27,10 @@ genai.configure(api_key=GOOGLE_GENAI_API_KEY)
 pc = Pinecone(api_key=PINECONE_API_KEY)
 
 # Constants used throughout
-DATABASE_INDEX_NAME = str(input("Enter database index name (hit enter for default of 768dim): "))
+DATABASE_INDEX_NAME = str(input("Enter database index name: "))
 EMBEDDING_MODEL = "models/text-embedding-004"
 MODEL_MAX_CHUNKS = 9500
 CHUNK_OVERLAP = 200
-
-if (DATABASE_INDEX_NAME == ""):
-    DATABASE_INDEX_NAME = "768dim"
 
 if DATABASE_INDEX_NAME not in pc.list_indexes().names():
     print("Invalid index name. Exiting.")
@@ -43,7 +40,7 @@ DISPLAY_SKIPPED_ARTICLES = str(input("Would you like to display info about skipp
 if DISPLAY_SKIPPED_ARTICLES != "y" and DISPLAY_SKIPPED_ARTICLES != "n":
     DISPLAY_SKIPPED_ARTICLES = "y"
 
-LOG_SKIPPED_ARTICLES = str(input("Would you like to log skipped articles in a new log file (y/n)? "))
+LOG_SKIPPED_ARTICLES = str(input("Would you like to create a new log file (y/n)? "))
 if LOG_SKIPPED_ARTICLES != "y" and LOG_SKIPPED_ARTICLES != "n":
     LOG_SKIPPED_ARTICLES = "y"
 

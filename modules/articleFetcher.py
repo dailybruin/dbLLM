@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 
 def findTotalPages(articles_per_page):
     """
@@ -101,7 +102,7 @@ def fetchArticleById(id: str) -> str:
         print(f"Error with fetching the page corresponding with id {id}")
         return ""
     
-def getLatestArtiles(last_checked_id: str) -> list:
+def getLatestArticlesByID(last_checked_id: str) -> list:
     """
     Gets the latest articles up to the last article id that we checked
     """
@@ -124,4 +125,35 @@ def getLatestArtiles(last_checked_id: str) -> list:
 
         if id_found == True:
             return articles
+        page_num += 1
+
+def getLatestArticlesByDate(last_synced_date: str) -> list:
+    """
+    @param last_synced_date: Must be in format "yyyy-mm-dd hh:mm:ss"
+    """
+    # Ensure date is in correct format
+    try:
+        last_synced_date_obj = datetime.strptime(last_synced_date, '%Y-%m-%d %H:%M:%S')
+    except Exception as e:
+        print(e)
+        return []
+    
+    articles = []
+    page_num = 1
+
+    while True:
+        one_page_articles = fetchArticles(starting_page=page_num,
+                                        ending_page=page_num)
+        if one_page_articles == []:
+            return []
+        
+        for article in one_page_articles:
+            article_date = article['date']
+            article_date_obj = datetime.strptime(article_date, '%Y-%m-%dT%H:%M:%S')
+            # If there's a more recent article than last synced
+            if article_date_obj > last_synced_date_obj:
+                articles.append(article)
+            else:
+                # If we found all recent articles
+                return articles
         page_num += 1
