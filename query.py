@@ -24,22 +24,20 @@ genai.configure(api_key=GOOGLE_GENAI_API_KEY)
 pc = Pinecone(api_key=PINECONE_API_KEY)
 
 # Constants used throughout
-DATABASE_INDEX_NAME = str(input("Enter database index name, (hit enter for default of 768dim): "))
+DATABASE_INDEX_NAME = str(input("Enter database index name: "))
 EMBEDDING_MODEL = "models/text-embedding-004"
 
-if (DATABASE_INDEX_NAME == ""):
-    DATABASE_INDEX_NAME = "768dim"
+if DATABASE_INDEX_NAME not in pc.list_indexes().names():
+    print("Invalid index name. Exiting.")
+    exit()
 
 # Wait for the index to be ready
-try:
-    while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
-        print("Waiting for index...")
-        time.sleep(1)
+while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
+    print("Waiting for index...")
+    time.sleep(1)
 
-    print("Index connected.")
-except Exception as e:
-    print("Invalid index name.")
-    exit()
+print("Index connected.")
+
     
 index = pc.Index(DATABASE_INDEX_NAME)
 
@@ -59,7 +57,7 @@ embedding = generateQueryEmbedding(genai=genai,
 
 results = index.query(
     vector=embedding,
-    top_k=5,
+    top_k=10,
     include_values=False,
     include_metadata=True
 )
@@ -95,7 +93,7 @@ for result in results['matches']:
 
 instructions = f"""
 You are an expert in whatever context is provided. Provide only factual information that you can back up using the context. Only mention facts, while keeping a light tone. Act like you are responding direclty to a question as a human.
-DO NOT SHARE REFERENCE URLS THAT ARE NOT INCLUDED IN THE CONTEXT BLOCK.
+If any given source in each context block offers relevant information, include the source(s) LINK in your response.
 You will not apologize for previous responses, but instead will indicate new information was gained.
 If user asks about or refers to the current "workspace" AI will refer to the the content after START CONTEXT BLOCK and before END OF CONTEXT BLOCK as the CONTEXT BLOCK. 
 If you are asked to give quotes, please bias towards providing reference links to the original source of the quote.
@@ -103,6 +101,8 @@ You will take into account any CONTEXT BLOCK that is provided in a conversation.
 You will not invent anything that is not drawn directly from the context.
 You will not answer questions that are not related to the context.
 The question that is being asked is below. Respond directly to this question only with the context provided.
+You will remain unbiased in your answers.
+If you do not know the answer because of little context, state so. Do not invent any information.
 START QUESTION BLOCK
 {query}
 END QUESTION BLOCK
