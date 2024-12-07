@@ -23,7 +23,7 @@ pip install beautifulsoup4
 
 4. Inside of the .env file, create the following variables:
 ```
-GOOGLE_GEMINI_API_KEY="your_google_gemini_api_key"
+GOOGLE_GENAI_API_KEY="your_google_gemini_api_key"
 PINECONE_API_KEY="your_pinecone_api_key"
 ```
 
