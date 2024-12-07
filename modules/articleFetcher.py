@@ -14,6 +14,18 @@ def findTotalPages(articles_per_page):
 
     return total_pages
 
+def findTotalArticles():
+    """
+    Returns the total number of articles
+    """
+    # Get a response element
+    response = requests.get("https://wp.dailybruin.com/wp-json/wp/v2/posts", params={"per_page": 1, "page": 1})
+
+    # Extract total pages and total articles from the response headers
+    total_articles = int(response.headers["x-WP-Total"])
+
+    return total_articles
+
 def fetchArticles(starting_page=1, ending_page=None, posts_per_page=100) -> list:
     """
         Get all articles as an array from the Daily Bruin article database.
@@ -65,6 +77,63 @@ def fetchArticles(starting_page=1, ending_page=None, posts_per_page=100) -> list
 
             print("Successfully fetched articles from page", page)
             page+=1
+        # If the request was unsuccessful, write out error and terminate function
+        else:
+            print("Error with fetching a page")
+            return []
+    
+    # Return the articles array
+    return articles
+
+def fetchArticlesExcept(starting_offset, ending_offset, start_except, end_except) -> list:
+    url = "https://wp.dailybruin.com/wp-json/wp/v2/posts"
+    articles = []
+
+    # Find total pages to iterate through
+    total_articles = findTotalArticles()
+
+    # Check boundaries of parameters
+    if ( starting_offset < 0 or ending_offset < 0 or start_except < 0 or end_except < 0):
+        print("All offsets must be greater than or equal to 0")
+        return []
+    elif ( starting_offset >= total_articles or start_except >= total_articles or end_except >= total_articles or ending_offset >= total_articles):
+        print("Offsets must be less than the total pages (", total_articles, ")")
+        return []
+    elif ( start_except > end_except ):
+        print("Starting offset must be less than ending offset")
+        return []
+    elif ( start_except > end_except ):
+        print("Starting offset except must be less than ending offset except")
+        return []
+    elif ( starting_offset > ending_offset ):
+        print("Starting offset must be less than ending offset")
+        return []
+
+    # Iterate through the pages
+    article = starting_offset
+    while (article <= ending_offset):
+
+        # Skip if in range of offset excepts
+        if article >= start_except and article <= end_except:
+            print("Skipping article", article)
+            article+=1
+            continue
+
+        # Request posts_per_page articles from a given page
+        response = requests.get(url, params={"per_page": 1, "offset": article})
+
+        # Only follow through if the response says successful
+        if (response.status_code == 200):
+            try:
+                # Append all articles from this page
+                articles.extend(response.json())
+            except:
+                # Write out error and terminate function
+                print("Could not make JSON out of article")
+                return []
+
+            print("Successfully fetched article from offset", article, "id", response.json()[0]['id'],)
+            article+=1
         # If the request was unsuccessful, write out error and terminate function
         else:
             print("Error with fetching a page")

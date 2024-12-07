@@ -75,7 +75,8 @@ if (LOG_SKIPPED_ARTICLES == "y"):
         print("Invalid parent directory for logging. Exiting.")
         exit()
 
-logger.start_fetching_articles_section()
+if LOG_SKIPPED_ARTICLES=="y":
+    logger.start_fetching_articles_section()
 # Loop through every n articles
 curr_page = STARTING_PAGE
 while (curr_page <= ENDING_PAGE):
@@ -119,7 +120,8 @@ while (curr_page <= ENDING_PAGE):
     update_factor = max(1, len(articles) // 100)
 
     print(f"Generating embeddings for {ARTICLES_LEN} articles")
-    logger.start_embedding_section(start_page=curr_page,
+    if LOG_SKIPPED_ARTICLES=="y":
+        logger.start_embedding_section(start_page=curr_page,
                                    end_page=end_segment)
 
     for i, article in enumerate(articles):
@@ -195,7 +197,8 @@ while (curr_page <= ENDING_PAGE):
     /////////////////////////////////
     """
 
-    logger.start_upserting_section(start_page=curr_page,
+    if LOG_SKIPPED_ARTICLES=="y":
+        logger.start_upserting_section(start_page=curr_page,
                                    end_page=end_segment)
     # Wait for the index to be ready
     while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
@@ -211,8 +214,9 @@ while (curr_page <= ENDING_PAGE):
     print("---------------------------------------------------------")
     print(f"\nSuccessfully upserted {len(embeddings)} embeddings.\n")
     print("---------------------------------------------------------")
-    logger.log_successful_upsert(len(embeddings))
+    if LOG_SKIPPED_ARTICLES=="y":
+        logger.log_successful_upsert(len(embeddings))
 
     curr_page = end_segment + 1
-
-logger.end_log()
+if LOG_SKIPPED_ARTICLES=="y":
+    logger.end_log()
