@@ -8,7 +8,7 @@
 <!-- 2. Install dependencies
 `pip install -r requirements.txt` -->
 
-2. Install dependencies
+2. Install dependencies (recommended in a virtual environment). This project runs on Python version 3.9.6
 ```
 pip install -q -U google-generativeai
 pip install langchain
