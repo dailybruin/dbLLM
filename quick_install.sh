@@ -33,7 +33,7 @@ if [ ! -f "$ENV_FILE" ]; then
   # File does not exist, create it and write lines
   echo "'$ENV_FILE' file does not yet exist. Creating and writing to it..."
     cat > "$ENV_FILE" << EOF
-    GEMINI_API_KEY = "INSERT API KEY HERE"
+    GOOGLE_GENAI_API_KEY = "INSERT API KEY HERE"
     PINECONE_API_KEY = "INSERT API KEY HERE"
 EOF
    echo "'$ENV_FILE' file was created successfully with two lines of text"
