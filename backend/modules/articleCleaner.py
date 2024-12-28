@@ -14,7 +14,6 @@ def clean_article(text):
     
     return text
 
-
 def clean_all_articles(articles):
     """
     Changes articles to a cleaned state

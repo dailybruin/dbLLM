@@ -3,12 +3,25 @@
 ## Installation Guide
 
 1. Clone the repository
-`git clone https://github.com/dailybruin/dbLLM`
+```
+git clone https://github.com/dailybruin/dbLLM
+```
 
-<!-- 2. Install dependencies
-`pip install -r requirements.txt` -->
+### Quick Installation (Fastest)
+We have taken the liberty of creating a shell script to get everything installed properly with just two quick commands! 
+However, if you would like to go through every step yourself, the full instructions are listed below. This shortcut command creates a conda environment, installs all dependencies, and creates a .env file for you (if it doesn't already exist)
 
-2. Install dependencies (recommended in a virtual environment). This project runs on Python version 3.9.6
+If you want to create the conda environment as well, use the -conda flag when running the shell script (./quick_install.sh -conda)
+
+In your (Linux/Mac) terminal: 
+```
+chmod +x quick_install.sh
+./quick_install.sh
+```
+
+### Step by Step Installation (if not doing Quick Installation)
+
+2. Install dependencies (recommended in a virtual environment). This project runs on (any) Python version 3.9
 ```
 pip install -q -U google-generativeai
 pip install langchain

@@ -1,6 +1,0 @@
-google-generativeai
-langchain
-python-dotenv
-jupyter
-pinecone-client[grpc]
-protobuf==5.26.1
