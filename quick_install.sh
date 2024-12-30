@@ -30,6 +30,7 @@ echo "All packages have been installed successfully!"
 # Define the file name
 ENV_FILE=".env"
 
+cd backend
 # Check if the file exists
 if [ ! -f "$ENV_FILE" ]; then
   # File does not exist, create it and write lines
@@ -43,6 +44,7 @@ else
   # File already exists, print a message
   echo "'$ENV_FILE' file already exists. No changes were made."
 fi
+cd ..
 
 # install all npm requirements
 cd frontend
