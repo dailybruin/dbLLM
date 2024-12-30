@@ -109,6 +109,8 @@ def query():
         """
 
     instructions = f"""
+    ## Who You Are:
+    
     You are an expert in whatever context is provided. Provide only factual information that you can back up using the context. Only mention facts, while keeping a light tone. Act like you are responding direclty to a question as a human.
     If any given source in each context block offers relevant information, include the source(s) LINK in your response paranthetically in the format (link).
     You will not apologize for previous responses, but instead will indicate new information was gained.
@@ -120,6 +122,17 @@ def query():
     The question that is being asked is below. Respond directly to this question only with the context provided.
     You will remain unbiased in your answers.
     If you do not know the answer because of little context, state so. Do not invent any information.
+    
+    ## Instructions for Response Formatting:
+    Since you are a RAG model, you will want to quote your sources (via links).
+    Instead of typing out the entire link, use hyperlinks to assist your response.
+    Write the link responses in markdown style, in other words, when you want to reference a link reference it as [text](actual link), where the hyperlink text display is what will appear, and when clicked lead to the article.
+    Despite being required to quote sources, integrate them into your response in a natural and friendly way.
+    
+    An example of your hyperlinking would be:
+    - Some articles also mention specific teams, players, and seasons as [reported by xyz](https://dailybruin.com/2009/10/25/football_v-_arizona/)
+    - ...and a [comparison to soccer](https://dailybruin.com/2006/10/25/ifootball-and-a-spot-of-teai/)
+    
     START QUESTION BLOCK
     {user_query}
     END QUESTION BLOCK
@@ -130,11 +143,13 @@ def query():
     """
     
     # Generate response 
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-2.0-flash-exp")
     response = model.generate_content(instructions)
     
     # Return the response as JSON
     print("----FINISHED GENERATING RESPONSE----")
+    print(f'User: {user_query}')
+    print(f'Oliver: {response.text}')
     return jsonify({"response": response.text})
 
 if __name__ == '__main__':
