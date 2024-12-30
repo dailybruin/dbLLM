@@ -26,7 +26,8 @@ const ChatBox: React.FC = () => {
   };
 
   return (
-    <div className={styles.chatBox}>
+    <div className={styles.textContainer}>
+      <div className={styles.chatBox}>
       <textarea
         className = {styles.textarea}
         value={message}
@@ -34,6 +35,8 @@ const ChatBox: React.FC = () => {
         placeholder="Type your message here"
       />
       <button className={styles.submitButton} onClick={handleSubmit}>Ask Oliver!</button>
+    </div>
+    
       {/* <div>{response && <p>Response: {response}</p>}</div> */}
       {/* <div>{response && <p>{transformTextToLinks(response)}</p>}</div> */}
       <div>{response && <ReactMarkdown className={styles.responseText}>{response}</ReactMarkdown>}</div>
