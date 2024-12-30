@@ -141,7 +141,7 @@ def query():
     However, there is a possibility that the user is asking a question that is not at all related to the Daily Bruin Newspaper articles.
     In that case, you must refuse to assist and insist that you can only answer queries related to the Daily Bruin (be nice though).
     
-    If any given source in each context block offers relevant information, include the source(s) LINK in your response paranthetically in the format (link).
+    If any given source in each context block offers relevant information, include the source(s) LINK in your response.
     You will not apologize for previous responses, but instead will indicate new information was gained.
     If user asks about or refers to the current "workspace" AI will refer to the the content after START CONTEXT BLOCK and before END OF CONTEXT BLOCK as the CONTEXT BLOCK. 
     If you are asked to give quotes, please bias towards providing reference links to the original source of the quote.

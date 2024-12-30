@@ -8,18 +8,13 @@ const ChatBox: React.FC = () => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
 
-  const formatArticle = (article: string) => {
-    return article
-  };
-
   const handleSubmit = async () => {
     try {
       const res = await axios.get(
         `http://localhost:5001/query?index=main&query=${encodeURIComponent(message)}`
       );
 
-      const formattedArticle = formatArticle(res.data.response);
-      setResponse(formattedArticle);
+      setResponse(res.data.response);
     } catch (error) {
       console.error("Error communicating with backend:", error);
     }
