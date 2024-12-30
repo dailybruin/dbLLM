@@ -175,16 +175,35 @@ def query():
     
     # Generate response 
     # model = genai.GenerativeModel("gemini-2.0-flash-exp")
-    response = model.generate_content(
-        instructions,
-        safety_settings=safety_settings
-    )
-    
-    # Return the response as JSON
-    print("----FINISHED GENERATING RESPONSE----")
-    print(f'User: {user_query}')
-    print(f'Oliver: {response.text}')
-    return jsonify({"response": response.text})
+    try:
+        response = model.generate_content(
+            instructions,
+            safety_settings=safety_settings
+        )
+        # Return the response as JSON
+        print("----FINISHED GENERATING RESPONSE----")
+        print(f'User: {user_query}')
+        print(f'Oliver: {response.text}')
+        return jsonify({"response": response.text})
+    except Exception as e:
+        print(e)
+        print("Error with gemini-2.0-flash-exp. Switching models to gemini-1.5-flash")
+        
+        # Initialize the model with "gemini-1.5-flash"
+        model_old = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            generation_config=generation_config,
+        )
+        response = model_old.generate_content(
+            instructions,
+            safety_settings=safety_settings
+        )
+        # Return the response as JSON
+        print("----FINISHED GENERATING RESPONSE----")
+        print(f'User: {user_query}')
+        print(f'Oliver: {response.text}')
+        return jsonify({"response": response.text})
+
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5001)
