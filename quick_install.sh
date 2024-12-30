@@ -23,6 +23,7 @@ pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
 pip install beautifulsoup4
 pip install flask
+pip install Flask-Cors
 
 echo "All packages have been installed successfully!"
 

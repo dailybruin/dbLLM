@@ -1,7 +1,3 @@
-#pip3 install flask
-#pip3 install flask-cors 
-
-
 import os
 import time
 from dotenv import load_dotenv
@@ -15,29 +11,28 @@ from modules.articleCleaner import clean_article
 from modules.articleFetcher import fetchArticleById
 from modules.embeddingFuncs import generateQueryEmbedding
 
-
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes and origins
 
 # endpoint to query 
 # ex: http://10.0.0.14:5000/query?index=main&query=Did+ucla+football+beat+usc
 
+# Load environment variables from .env file
+print("\n----LOADING ENVIRONMENT VARIABLES----")
+load_dotenv()
+
+# Access variables
+GOOGLE_GENAI_API_KEY = os.getenv("GOOGLE_GENAI_API_KEY")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+
+# Configure the Google Generative AI library
+genai.configure(api_key=GOOGLE_GENAI_API_KEY)
+
+# Configure the Pinecone database
+pc = Pinecone(api_key=PINECONE_API_KEY)
+
 @app.route('/query', methods=['GET'])
 def query():
-    # Load environment variables from .env file
-    print("\n----LOADING ENVIRONMENT VARIABLES----")
-    load_dotenv()
-
-    # Access variables
-    GOOGLE_GENAI_API_KEY = os.getenv("GOOGLE_GENAI_API_KEY")
-    PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-
-    # Configure the Google Generative AI library
-    genai.configure(api_key=GOOGLE_GENAI_API_KEY)
-
-    # Configure the Pinecone database
-    pc = Pinecone(api_key=PINECONE_API_KEY)
-
     # Constants used throughout
     DATABASE_INDEX_NAME = request.args.get('index')  #get index parameter from the URL
     EMBEDDING_MODEL = "models/text-embedding-004"

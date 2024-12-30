@@ -50,7 +50,7 @@ Replace the values in the quotes with your own API keys
    
 7. Run query.py to run a query and get a response
 
-#### Frontend Installation
+#### Running the App
 Our web app's backend and frontend are separated into different folders. To build the frontend, change directory into the frontend folder and run npm install (you will have to do this every time we decide to update the frontend)
 
 ```
@@ -61,3 +61,10 @@ npm install
 ```
 
 Make sure that you actually run npm install in the frontend folder and NOT the parent directory. If you run npm install in the parent directory, it will install the dependencies for the backend and not the frontend, and it will also create a package-lock.json file in the parent directory that we do not want.
+
+To run the backend, switch over to the backend folder and run python app.py
+
+```
+cd backend
+python app.py
+```
