@@ -22,6 +22,7 @@ pip install jupyter # jupyter notebooks is for experimental scripting - this sho
 pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
 pip install beautifulsoup4
+pip install flask
 
 echo "All packages have been installed successfully!"
 
@@ -41,3 +42,8 @@ else
   # File already exists, print a message
   echo "'$ENV_FILE' file already exists. No changes were made."
 fi
+
+# install all npm requirements
+cd frontend
+npm install
+cd .. # return to parent directory

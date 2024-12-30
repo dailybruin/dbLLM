@@ -21,6 +21,7 @@ chmod +x quick_install.sh
 
 ### Step by Step Installation (if not doing Quick Installation)
 
+#### Backend Installation
 2. Install dependencies (recommended in a virtual environment). This project runs on (any) Python version 3.9
 ```
 pip install -q -U google-generativeai
@@ -30,7 +31,6 @@ pip install jupyter
 pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
 pip install beautifulsoup4
-pip install flask
 ```
 
 3. Create a .env file in the root directory of the project. This is the file that will store your API keys for Pinecone and Google Gemini.
@@ -47,7 +47,17 @@ PINECONE_API_KEY="your_pinecone_api_key"
 Replace the values in the quotes with your own API keys
 
 5. Run store.py to store articles into the database
-
    
 7. Run query.py to run a query and get a response
 
+#### Frontend Installation
+Our web app's backend and frontend are separated into different folders. To build the frontend, change directory into the frontend folder and run npm install (you will have to do this every time we decide to update the frontend)
+
+```
+pip install flask
+
+cd frontend
+npm install
+```
+
+Make sure that you actually run npm install in the frontend folder and NOT the parent directory. If you run npm install in the parent directory, it will install the dependencies for the backend and not the frontend, and it will also create a package-lock.json file in the parent directory that we do not want.
