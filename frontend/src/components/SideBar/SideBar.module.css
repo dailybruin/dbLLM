@@ -18,3 +18,12 @@
     justify-content: center;
     align-items: center;
 }
+
+.sidebarDivider {
+    border: 1px solid white;
+    width: 90%;
+    align-self: center;
+    margin: 0 auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

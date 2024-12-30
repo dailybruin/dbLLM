@@ -1,6 +1,7 @@
 import os
 import time
 from dotenv import load_dotenv
+import logging
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
@@ -14,6 +15,8 @@ from modules.articleFetcher import fetchArticleById
 from modules.embeddingFuncs import generateQueryEmbedding
 
 app = Flask(__name__)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)  # Only show errors and critical messages
 CORS(app)  # Enable CORS for all routes and origins
 
 # endpoint to query 
@@ -40,8 +43,9 @@ generation_config = {
   "max_output_tokens": 8192, # you can control the length of output
 }
 
+model_name = "gemini-2.0-flash-exp"
 model = genai.GenerativeModel(
-  model_name="gemini-2.0-flash-exp",
+  model_name= model_name,
   generation_config=generation_config,
 )
 
@@ -54,6 +58,113 @@ safety_settings = {
     HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
     # HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE, # I'm not sure what this category is
 }
+
+@app.route('/get_message')
+def get_message():
+    try:
+        response = model.generate_content(
+            "type 'hi'",
+        )
+        if response.text:
+            return jsonify({"message": 'Connection Successful', "model": model_name})
+        else:
+            return jsonify({"message": "Unknown Error."})
+    except Exception as e:
+        return jsonify({"message": f'Encountered Error {str(e)}'})
+
+"""
+LIVE TIMING FUNCTIONS
+"""
+timer_start_time = None
+timer_running = False
+timer_duration = 0
+timer_start_timeR = None
+timer_runningR = False
+timer_durationR = 0
+def timer():
+    """
+    Toggle timer function that starts/stops the timer.
+    Returns the timer's state and duration.
+    """
+    global timer_start_time, timer_running, timer_duration
+    
+    if not timer_running:
+        # Start the timer
+        timer_start_time = time.time()
+        timer_running = True
+        return jsonify({"status": "started"})
+    else:
+        # Stop the timer
+        timer_running = False
+        end_time = time.time()
+        timer_duration = end_time - timer_start_time
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_duration)
+        })
+
+@app.route('/get_timer')
+def get_timer():
+    global timer_start_time, timer_running, timer_duration
+    
+    if timer_start_time and timer_running:
+        current_time = time.time()
+        current_duration = current_time - timer_start_time
+        return jsonify({
+            "status": "running",
+            "duration": str(current_duration)
+        })
+    elif not timer_running and timer_start_time:
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_duration)
+        })
+    else:
+        return jsonify({"status": "waiting"})
+    
+# Response Timer
+def timerR():
+    """
+    Toggle timer function that starts/stops the timer.
+    Returns the timer's state and duration.
+    """
+    global timer_start_timeR, timer_runningR, timer_durationR
+    
+    if not timer_runningR:
+        # Start the timer
+        timer_start_timeR = time.time()
+        timer_runningR = True
+        return jsonify({"status": "started"})
+    else:
+        # Stop the timer
+        timer_runningR = False
+        end_time = time.time()
+        timer_durationR = end_time - timer_start_timeR
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_durationR)
+        })
+
+@app.route('/get_timerR')
+def get_timerR():
+    global timer_start_timeR, timer_runningR, timer_durationR
+    
+    if timer_start_timeR and timer_runningR:
+        current_time = time.time()
+        current_duration = current_time - timer_start_time
+        return jsonify({
+            "status": "running",
+            "duration": str(current_duration)
+        })
+    elif not timer_runningR and timer_start_timeR:
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_durationR)
+        })
+    else:
+        return jsonify({"status": "waiting"})
+
+# Disable logging for these constant update functions
 
 @app.route('/query', methods=['GET'])
 def query():
@@ -80,7 +191,8 @@ def query():
     //////  Query
     /////////////////////////////////
     """
-
+    t0 = time.time() # start timer for querying
+    timer()
     # get query parameter from the URL
     user_query = request.args.get('query')
     
@@ -102,7 +214,10 @@ def query():
         include_metadata=True
     )
     print("----FINISHED QUERYING----")
-
+    t1 = time.time() # stop timer for querying
+    timer()
+    query_time = round(t1-t0, 2)
+    print(f'Querying took ~{query_time} seconds.')
     """ 
     /////////////////////////////////
     //////  Generate Response
@@ -111,6 +226,8 @@ def query():
 
     print("\n----GENERATING RESPONSE----")
     
+    t0 = time.time() # start timer for generating response
+    timerR()
     # Generate context for the response
     context = ""
 
@@ -141,6 +258,7 @@ def query():
     However, there is a possibility that the user is asking a question that is not at all related to the Daily Bruin Newspaper articles.
     In that case, you must refuse to assist and insist that you can only answer queries related to the Daily Bruin (be nice though).
     
+    If any given source in each context block offers relevant information, include the source(s) LINK in your response.
     If any given source in each context block offers relevant information, include the source(s) LINK in your response.
     You will not apologize for previous responses, but instead will indicate new information was gained.
     If user asks about or refers to the current "workspace" AI will refer to the the content after START CONTEXT BLOCK and before END OF CONTEXT BLOCK as the CONTEXT BLOCK. 
@@ -182,6 +300,7 @@ def query():
         )
         # Return the response as JSON
         print("----FINISHED GENERATING RESPONSE----")
+        timerR()
         print(f'User: {user_query}')
         print(f'Oliver: {response.text}')
         return jsonify({"response": response.text})
@@ -198,6 +317,7 @@ def query():
             instructions,
             safety_settings=safety_settings
         )
+        timerR()
         # Return the response as JSON
         print("----FINISHED GENERATING RESPONSE----")
         print(f'User: {user_query}')
