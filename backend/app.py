@@ -6,6 +6,8 @@ from flask_cors import CORS
 
 from pinecone.grpc import PineconeGRPC as Pinecone
 import google.generativeai as genai
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
 
 from modules.articleCleaner import clean_article
 from modules.articleFetcher import fetchArticleById
@@ -30,6 +32,28 @@ genai.configure(api_key=GOOGLE_GENAI_API_KEY)
 
 # Configure the Pinecone database
 pc = Pinecone(api_key=PINECONE_API_KEY)
+
+generation_config = {
+  "temperature": 1.5,
+  "top_p": 0.95,
+  "top_k": 40,
+  "max_output_tokens": 8192, # you can control the length of output
+}
+
+model = genai.GenerativeModel(
+  model_name="gemini-2.0-flash-exp",
+  generation_config=generation_config,
+)
+
+# Safety Settings are currently set to MAX
+# See official documentation: https://ai.google.dev/gemini-api/docs/safety-settings?t
+safety_settings = {
+    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
+    # HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE, # I'm not sure what this category is
+}
 
 @app.route('/query', methods=['GET'])
 def query():
@@ -132,7 +156,7 @@ def query():
     You will output your response in MARKDOWN format. ALL links no matter what must be hyperlinked using the markdown format [text](link).
     There are two rules you MUST follow:
     1. ALL links must be hyperlinked
-    2. The reference link must NOT be the original link. The reference link must be natural language that flows with the rest of the sentence. Do your best to integrade the hyperlinks as naturally as possible with the flow of the rest of the sentence.
+    2. The reference link must NOT be the original link. The reference link must be natural language that flows with the rest of the sentence. Do your best to integrade the hyperlinks as naturally as possible with the flow of the rest of the sentence. 
     There are absolutely no exceptions to this rule. You MUST output all links in the markdown format as a hyperlink.
     Despite being required to quote sources, integrate them into your response in a natural and friendly way.
     
@@ -150,8 +174,11 @@ def query():
     """
     
     # Generate response 
-    model = genai.GenerativeModel("gemini-2.0-flash-exp")
-    response = model.generate_content(instructions)
+    # model = genai.GenerativeModel("gemini-2.0-flash-exp")
+    response = model.generate_content(
+        instructions,
+        safety_settings=safety_settings
+    )
     
     # Return the response as JSON
     print("----FINISHED GENERATING RESPONSE----")
