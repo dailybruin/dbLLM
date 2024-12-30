@@ -1,0 +1,20 @@
+.sidebarStyle {
+    color: white;
+    background-color: rgb(21, 26, 28);
+    grid-row: span 1;
+    grid-column: span 1;
+
+    border-color: rgb(177, 175, 172);
+    box-shadow: 0px 4px 8px 0px rgba(0,0,0,0.2);
+    border-width: 2px;
+    border-style: solid;
+    border-radius: 20px;
+    font-size: 20px;
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+
+    width: 97%;
+    height: 97%;
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+}

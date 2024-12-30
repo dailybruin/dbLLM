@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import ReactMarkdown from 'react-markdown'
 import axios from "axios";
 
+import styles from "./ChatBox.module.css";
+
 const ChatBox: React.FC = () => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
@@ -24,17 +26,17 @@ const ChatBox: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className={styles.chatBox}>
       <textarea
+        className = {styles.textarea}
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type your message here"
       />
-      <button onClick={handleSubmit}>Submit</button>
+      <button className={styles.submitButton} onClick={handleSubmit}>Ask Oliver!</button>
       {/* <div>{response && <p>Response: {response}</p>}</div> */}
-      <div><h3>Oliver:</h3></div>
       {/* <div>{response && <p>{transformTextToLinks(response)}</p>}</div> */}
-      <div>{response && <ReactMarkdown>{response}</ReactMarkdown>}</div>
+      <div>{response && <ReactMarkdown className={styles.responseText}>{response}</ReactMarkdown>}</div>
     </div>
   );
 };
