@@ -1,12 +1,12 @@
 #pip3 install flask
 #pip3 install flask-cors 
-#from flask_cors import CORS
 
 
 import os
 import time
 from dotenv import load_dotenv
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from pinecone.grpc import PineconeGRPC as Pinecone
 import google.generativeai as genai
@@ -17,6 +17,7 @@ from modules.embeddingFuncs import generateQueryEmbedding
 
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes and origins
 
 # endpoint to query 
 # ex: http://10.0.0.14:5000/query?index=main&query=Did+ucla+football+beat+usc
@@ -111,7 +112,7 @@ def query():
         {cleanedArticle}
         \nARTICLE END\n
         """
-    
+
     instructions = f"""
     You are an expert in whatever context is provided. Provide only factual information that you can back up using the context. Only mention facts, while keeping a light tone. Act like you are responding direclty to a question as a human.
     If any given source in each context block offers relevant information, include the source(s) LINK in your response paranthetically in the format (link).
@@ -125,7 +126,7 @@ def query():
     You will remain unbiased in your answers.
     If you do not know the answer because of little context, state so. Do not invent any information.
     START QUESTION BLOCK
-    {query}
+    {user_query}
     END QUESTION BLOCK
 
     START CONTEXT BLOCK
@@ -142,4 +143,4 @@ def query():
     return jsonify({"response": response.text})
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5001)
