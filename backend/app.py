@@ -225,6 +225,7 @@ def query():
         {cleanedArticle}
         \nARTICLE END\n
         """
+    print(context)
         
     print("----FINISHED QUERYING----")
     t1 = time.time() # stop timer for querying
