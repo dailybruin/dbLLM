@@ -41,7 +41,8 @@ client = Groq(
     api_key=GROQ_API_KEY,
 )
 
-model_name="llama-3.3-70b-versatile"
+#model_name="llama-3.3-70b-versatile"
+model_name="llama-3.3-70b-specdec"
 
 @app.route('/get_message')
 def get_message():
@@ -254,7 +255,8 @@ def query():
     You will not invent anything that is not drawn directly from the context.
     You will not invent anything that is not drawn directly from the context.
     You will quote sources in a way that it flows naturally with the rest of your response. Avoid integrating the sources using the same phrases.
-    
+    You will omit conclusions. 
+        
     # User Query:
     {user_query}
 
