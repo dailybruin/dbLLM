@@ -1,6 +1,7 @@
 import os
 import time
 from dotenv import load_dotenv
+from groq import Groq
 import logging
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -8,7 +9,6 @@ from flask_cors import CORS
 from pinecone.grpc import PineconeGRPC as Pinecone
 import google.generativeai as genai
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
-
 
 from modules.articleCleaner import clean_article
 from modules.articleFetcher import fetchArticleById
@@ -29,6 +29,7 @@ load_dotenv()
 # Access variables
 GOOGLE_GENAI_API_KEY = os.getenv("GOOGLE_GENAI_API_KEY")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 # Configure the Google Generative AI library
 genai.configure(api_key=GOOGLE_GENAI_API_KEY)
@@ -36,38 +37,26 @@ genai.configure(api_key=GOOGLE_GENAI_API_KEY)
 # Configure the Pinecone database
 pc = Pinecone(api_key=PINECONE_API_KEY)
 
-generation_config = {
-  "temperature": 1.5,
-  "top_p": 0.95,
-  "top_k": 40,
-  "max_output_tokens": 2048, # you can control the length of output
-}
-
-model_name = "gemini-2.0-flash-exp"
-#model_name = "gemini-1.5-flash-8b"
-model = genai.GenerativeModel(
-  model_name= model_name,
-  generation_config=generation_config,
+client = Groq(
+    api_key=GROQ_API_KEY,
 )
 
-# Safety Settings are currently set to MAX
-# See official documentation: https://ai.google.dev/gemini-api/docs/safety-settings?t
-safety_settings = {
-    HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
-    # HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE, # I'm not sure what this category is
-}
+model_name="llama-3.3-70b-versatile"
 
 @app.route('/get_message')
 def get_message():
     try:
-        response = model.generate_content(
-            "type 'hi'",
-        )
-        if response.text:
-            return jsonify({"message": 'Connection Successful', "model": model_name})
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": "type 'hi'",
+                }
+            ],
+            model=model_name,
+        ).choices[0].message.content
+        if response:
+            return jsonify({"message": 'Connection Successful', "model": "GROQ " + model_name})
         else:
             return jsonify({"message": "Unknown Error."})
     except Exception as e:
@@ -210,7 +199,7 @@ def query():
     # Query Pinecone index
     results = index.query(
         vector=embedding,
-        top_k=10,
+        top_k=5,
         include_values=False,
         include_metadata=True
     )
@@ -265,7 +254,6 @@ def query():
     You will not invent anything that is not drawn directly from the context.
     You will not invent anything that is not drawn directly from the context.
     You will quote sources in a way that it flows naturally with the rest of your response. Avoid integrating the sources using the same phrases.
-    Limit responses to a 3 sentences. Pack this short paragraph with as much information as possible, while keeping it concise.
     
     # User Query:
     {user_query}
@@ -292,38 +280,42 @@ def query():
     """
     
     # Generate response 
-    # model = genai.GenerativeModel("gemini-2.0-flash-exp")
     try:
-        response = model.generate_content(
-            instructions,
-            safety_settings=safety_settings
-        )
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": instructions,
+                }
+            ],
+            model=model_name,
+        ).choices[0].message.content
         # Return the response as JSON
         print("----FINISHED GENERATING RESPONSE----")
         timerR()
         print(f'User: {user_query}')
-        print(f'Oliver: {response.text}')
-        return jsonify({"response": response.text})
+        print(f'Oliver: {response}')
+        return jsonify({"response": response})
     except Exception as e:
         print(e)
-        print("Error with gemini-2.0-flash-exp. Switching models to gemini-1.5-flash")
+        print(f"Error with GROQ {model_name}. Switching models to GROQ llama-guard-3-8b")
         
         # Initialize the model with "gemini-1.5-flash"
-        model_old = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            generation_config=generation_config,
-        )
-        response = model_old.generate_content(
-            instructions,
-            safety_settings=safety_settings
-        )
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": instructions,
+                }
+            ],
+            model="llama-guard-3-8b",
+        ).choices[0].message.content
         timerR()
         # Return the response as JSON
         print("----FINISHED GENERATING RESPONSE----")
         print(f'User: {user_query}')
-        print(f'Oliver: {response.text}')
-        return jsonify({"response": response.text})
-
+        print(f'Oliver: {response}')
+        return jsonify({"response": response})
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5001)
