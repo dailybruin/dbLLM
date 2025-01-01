@@ -200,25 +200,11 @@ def query():
     # Query Pinecone index
     results = index.query(
         vector=embedding,
-        top_k=5,
+        top_k=3,
         include_values=False,
         include_metadata=True
     )
-    print("----FINISHED QUERYING----")
-    t1 = time.time() # stop timer for querying
-    timer()
-    query_time = round(t1-t0, 2)
-    print(f'Querying took ~{query_time} seconds.')
-    """ 
-    /////////////////////////////////
-    //////  Generate Response
-    /////////////////////////////////
-    """
-
-    print("\n----GENERATING RESPONSE----")
     
-    t0 = time.time() # start timer for generating response
-    timerR()
     # Generate context for the response
     context = ""
 
@@ -239,7 +225,22 @@ def query():
         {cleanedArticle}
         \nARTICLE END\n
         """
+        
+    print("----FINISHED QUERYING----")
+    t1 = time.time() # stop timer for querying
+    timer()
+    query_time = round(t1-t0, 2)
+    print(f'Querying took ~{query_time} seconds.')
+    """ 
+    /////////////////////////////////
+    //////  Generate Response
+    /////////////////////////////////
+    """
 
+    print("\n----GENERATING RESPONSE----")
+    
+    t0 = time.time() # start timer for generating response
+    timerR()
     instructions = f"""
     # Who You Are:
     You are an advanced RAG LLM named Oliver, serving the UCLA Daily Bruin Newspaper.
@@ -282,6 +283,9 @@ def query():
     """
     
     # Generate response 
+    client = Groq(
+        api_key=GROQ_API_KEY,
+    )
     try:
         response = client.chat.completions.create(
             messages=[
