@@ -1,8 +1,47 @@
 .gridContainer {
-    place-items: center;
-    background-color: rgb(68, 134, 233);
-    grid-column: 1/3;
-    z-index: 1;
-    padding-top: 8px;
-    font-size: large;
+  display: flex;
+  justify-content: right;
+
+  place-items: center;
+  background-color: rgb(68, 134, 233);
+  grid-column: 1/3;
+  z-index: 1;
+  padding-top: 5px;
+  font-size: large;
+}
+
+.bannerTitle {
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+
+    position: absolute; /* Position the title absolutely */
+    left: 50%; /* Move the title's left edge to the center */
+    transform: translateX(-50%); /* Adjust to center it horizontally */
+}
+
+.logoutButton {
+  background-color: rgb(68, 134, 233);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  cursor: pointer;
+  border: black 2px solid;
+  float: right;
+
+  display: absolute;
+  top: 0px;
+  right: 0px;
+
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.logoutButton:hover {
+  background-color: rgb(16, 93, 209);
+  border: black 2px solid;
 }
