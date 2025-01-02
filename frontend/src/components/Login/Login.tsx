@@ -1,6 +1,11 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import axios, {
+  AxiosResponse,
+  AxiosRequestConfig,
+  RawAxiosRequestHeaders,
+} from "axios";
 
 interface JwtPayload {
   email?: string;
@@ -11,15 +16,31 @@ const Login: React.FC = () => {
   return (
     <>
       <GoogleLogin
-        onSuccess={(credentialResponse) => {
+        onSuccess={async (credentialResponse) => {
           if (credentialResponse.credential) {
             const decoded: JwtPayload = jwtDecode(
               credentialResponse.credential
             );
-            console.log(decoded);
 
-            if (decoded.email && decoded.email.endsWith("@media.ucla.edu")) {
+            const config: AxiosRequestConfig = {
+              headers: {
+                Accept: "application/json",
+              } as RawAxiosRequestHeaders,
+            };
+
+            console.log(decoded);
+            const response: AxiosResponse = await axios.post(
+              "http://localhost:5001/is_valid_user",
+              decoded,
+              config
+            );
+
+            if (response.status == 200) {
+              console.log("Login successful.");
               navigate("/chat");
+            }
+            else {
+              console.log("Login unsuccessful.");
             }
           } else {
             console.error("No credential received.");

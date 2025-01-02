@@ -2,7 +2,7 @@ import os
 import time
 from dotenv import load_dotenv
 import logging
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
 
 from pinecone.grpc import PineconeGRPC as Pinecone
@@ -72,6 +72,16 @@ def get_message():
             return jsonify({"message": "Unknown Error."})
     except Exception as e:
         return jsonify({"message": f'Encountered Error {str(e)}'})
+    
+"""
+HANDLING USER AUTHENTICATION
+"""
+@app.route('/is_valid_user', methods=['POST']) 
+def is_valid_user():
+    JWT_JSON = request.json
+    if (JWT_JSON['email'] and JWT_JSON['email'].endswith("@media.ucla.edu")):
+        return Response("{'valid': true}", status=200, mimetype='application/json')
+    return Response("{'valid': false}", status=401, mimetype='application/json')
 
 """
 LIVE TIMING FUNCTIONS
