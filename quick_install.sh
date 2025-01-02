@@ -16,6 +16,7 @@ else
 fi
 
 pip install -q -U google-generativeai
+pip install --upgrade google-auth
 pip install langchain
 pip install python-dotenv
 pip install jupyter # jupyter notebooks is for experimental scripting - this should be removed after deployment
@@ -30,23 +31,41 @@ echo "All packages have been installed successfully!"
 # Define the file name
 ENV_FILE=".env"
 
+# Create backend .env file
 cd backend
 # Check if the file exists
 if [ ! -f "$ENV_FILE" ]; then
   # File does not exist, create it and write lines
-  echo "'$ENV_FILE' file does not yet exist. Creating and writing to it..."
+  echo "Backend environment file does not yet exist. Creating and writing to it..."
     cat > "$ENV_FILE" << EOF
-    GOOGLE_GENAI_API_KEY = "INSERT API KEY HERE"
-    PINECONE_API_KEY = "INSERT API KEY HERE"
+GOOGLE_GENAI_API_KEY = "INSERT API KEY HERE"
+GOOGLE_CLIENT_ID = "INSERT CLIENT ID HERE"
+PINECONE_API_KEY = "INSERT API KEY HERE"
 EOF
-   echo "'$ENV_FILE' file was created successfully with two lines of text"
+   echo "'Backend environment file was created successfully with empty keys and ID"
 else
   # File already exists, print a message
-  echo "'$ENV_FILE' file already exists. No changes were made."
+  echo "Backend environment' file already exists. No changes were made."
 fi
 cd ..
 
-# install all npm requirements
+# Create frontend .env file
+cd frontend
+# Check if the file exists
+if [ ! -f "$ENV_FILE" ]; then
+  # File does not exist, create it and write lines
+  echo "Frontend environment file does not yet exist. Creating and writing to it..."
+    cat > "$ENV_FILE" << EOF
+VITE_GOOGLE_CLIENT_ID = "INSERT CLIENT ID HERE"
+EOF
+   echo "Frontend environment file was created successfully with empty ID"
+else
+  # File already exists, print a message
+  echo "Frontend environment file already exists. No changes were made."
+fi
+cd ..
+
+# install all npm requirements (in frontend)
 cd frontend
 npm install
 cd .. # return to parent directory
