@@ -2,8 +2,12 @@ import os
 import time
 from dotenv import load_dotenv
 import logging
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, make_response
 from flask_cors import CORS
+
+#pip install --upgrade google-auth
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
 
 from pinecone.grpc import PineconeGRPC as Pinecone
 import google.generativeai as genai
@@ -17,7 +21,7 @@ from modules.embeddingFuncs import generateQueryEmbedding
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)  # Only show errors and critical messages
-CORS(app)  # Enable CORS for all routes and origins
+CORS(app, supports_credentials=True)  # Enable CORS for all routes and origins
 
 # endpoint to query 
 # ex: http://10.0.0.14:5000/query?index=main&query=Did+ucla+football+beat+usc
@@ -29,6 +33,7 @@ load_dotenv()
 # Access variables
 GOOGLE_GENAI_API_KEY = os.getenv("GOOGLE_GENAI_API_KEY")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 
 # Configure the Google Generative AI library
 genai.configure(api_key=GOOGLE_GENAI_API_KEY)
@@ -76,12 +81,35 @@ def get_message():
 """
 HANDLING USER AUTHENTICATION
 """
-@app.route('/is_valid_user', methods=['POST']) 
-def is_valid_user():
-    JWT_JSON = request.json
-    if (JWT_JSON['email'] and JWT_JSON['email'].endswith("@media.ucla.edu")):
-        return Response("{'valid': true}", status=200, mimetype='application/json')
-    return Response("{'valid': false}", status=401, mimetype='application/json')
+@app.route('/login', methods=['POST']) 
+def login():
+    TOKEN = request.json['token']
+    resp = make_response('Response')
+
+    if not TOKEN:
+        print("No token provided.")
+        resp.status_code = 400
+        return resp
+
+    try:
+        # Verify the token using Google's OAuth2 library
+        id_info = id_token.verify_oauth2_token(TOKEN['credential'], google_requests.Request(), GOOGLE_CLIENT_ID)
+
+        # Check if the email is verified and belongs to the correct domain
+        email = id_info.get('email')
+        email_verified = id_info.get('email_verified', False)
+
+        if email_verified and email.endswith("@media.ucla.edu"):
+            resp.status_code = 200
+            print("Login successful.")
+        else:
+            resp.status_code = 401
+            print("Login unsuccessful. Not a student media email or email not verified.")
+    except ValueError as e:
+        print(f"Invalid token: {e}")
+        resp.status_code = 401
+
+    return resp
 
 """
 LIVE TIMING FUNCTIONS
