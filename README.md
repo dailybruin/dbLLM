@@ -55,6 +55,7 @@ Our web app's backend and frontend are separated into different folders. To buil
 
 ```
 pip install flask
+pip install Flask-Cors
 
 cd frontend
 npm install
