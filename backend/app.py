@@ -200,7 +200,7 @@ def query():
     # Query Pinecone index
     results = index.query(
         vector=embedding,
-        top_k=3,
+        top_k=5,
         include_values=False,
         include_metadata=True
     )
