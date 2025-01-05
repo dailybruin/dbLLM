@@ -171,7 +171,7 @@ def query():
     # Wait for the index to be ready
     while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
         print("Waiting for index...")
-        time.sleep(1)
+        #time.sleep(1)
 
     print("Index connected.")
     index = pc.Index(DATABASE_INDEX_NAME)
