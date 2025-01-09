@@ -45,13 +45,28 @@ print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
 # Check if lastSynced.txt exists, create it if it doesn't
 if not os.path.isfile('./lastSynced.txt'):
+    print("No './lastSynced.txt' file found - creating one and exiting. Please input a time in the format %Y-%m-%d %H:%M:%S and try again.")
     file = open('./lastSynced.txt', 'w')
     file.close()
+    exit()
 
 # Extract our lastSynced time
 file = open('./lastSynced.txt', 'r')
 last_synced_time = file.read()
 file.close()
+
+# Check if lastSynced time exists
+if last_synced_time == "":
+    print("No lastSynced time found in './lastSynced.txt'. Exiting. Please input a time in the format %Y-%m-%d %H:%M:%S and try again.")
+    exit()
+
+# Check if lastSynced time is in correct format
+try:
+    last_synced_date_obj = datetime.strptime(last_synced_time, '%Y-%m-%d %H:%M:%S')
+except Exception as e:
+    print(e)
+    print("Last synced time is not in correct format. Exiting.")
+    exit()
 
 # Update lastSynced with current time
 file = open('./lastSynced.txt', 'w')
