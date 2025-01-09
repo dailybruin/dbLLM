@@ -62,7 +62,9 @@ Replace the value in quote with your own client ID
 <br>
 
 ### Running the App
-Our web app's backend and frontend are separated into different folders, and each must be started independently. 
+* Our web app's backend and frontend are separated into different folders, and each must be started independently.
+
+* Ensure that you have all environment variables inputted in both .env files (one in frontend, one in backend).
 
 #### Building Frontend
 To build the frontend, change directory into the frontend folder and run npm install (you will have to do this every time we decide to update the frontend). Then, npm run dev starts the development server.
