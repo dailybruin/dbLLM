@@ -11,6 +11,7 @@ if [[ "$1" == "-conda" ]]; then
   fi
   echo "Creating Anaconda environment 'dbllm' with latest version of Python 3.9..."
   conda create -n dbllm python=3.9
+  conda activate dbllm
 else
   echo "You have not toggled the -conda flag. You are responsible for managing the dependency conflicts. To install using a conda environment, use the -conda flag"
 fi
