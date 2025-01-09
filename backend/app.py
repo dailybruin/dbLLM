@@ -212,8 +212,34 @@ def get_timerR():
 
 # Disable logging for these constant update functions
 
+"""
+AUTHENTICATION HELPER FUNCTION USED IN QUERY ROUTE
+"""
+def isAuthenticated(TOKEN: str) -> bool:
+    try:
+        # Verify the token using Google's OAuth2 library
+        id_info = id_token.verify_oauth2_token(TOKEN, google_requests.Request(), GOOGLE_CLIENT_ID)
+
+        # Check if the email is verified and belongs to the correct domain
+        email = id_info.get('email')
+        email_verified = id_info.get('email_verified', False)
+
+        if email_verified and email.endswith("@media.ucla.edu"):
+            return True
+        else:
+            return False
+    except ValueError as e:
+        return False
+    
 @app.route('/query', methods=['GET'])
 def query():
+    if "token" not in request.args:
+        return jsonify({"response": "Unauthorized. Please sign in with a student media account."}), 401
+    
+    jwt_token = request.args.get('token')
+    if not isAuthenticated(jwt_token):
+        return jsonify({"response": "Unauthorized. Please sign in with a student media account."}), 401
+    
     # Constants used throughout
     DATABASE_INDEX_NAME = request.args.get('index')  #get index parameter from the URL
     EMBEDDING_MODEL = "models/text-embedding-004"

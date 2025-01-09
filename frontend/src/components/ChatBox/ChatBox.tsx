@@ -10,13 +10,15 @@ const ChatBox: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
+      const token = localStorage.getItem("token") || "";
       const res = await axios.get(
-        `http://localhost:5001/query?index=main&query=${encodeURIComponent(message)}`
+        `http://localhost:5001/query?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
       );
 
       setResponse(res.data.response);
     } catch (error) {
       console.error("Error communicating with backend:", error);
+      setResponse("Unauthorized. Please login to ask Oliver!");
     }
   };
 
