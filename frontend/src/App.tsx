@@ -6,25 +6,32 @@ import ChatBox from "./components/ChatBox/ChatBox";
 import Sidebar from "./components/SideBar/SideBar";
 import Banner from "./components/Banner/Banner";
 
-import { HashRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { UserProvider } from "./Context/useAuth";
+import ProtectedRoute from "./Routes/ProtectedRoute";
 
 function App() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route
-          path="/chat"
-          element={
-            <div className={styles.background}>
-              <Banner />
-              <Sidebar />
-              <ChatBox />
-            </div>
-          }
-        />
-      </Routes>
-    </HashRouter>
+    <BrowserRouter>
+      <UserProvider>
+        <Routes>
+          <Route path="/" element={<Login />} />
+
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <div className={styles.background}>
+                  <Banner />
+                  <Sidebar />
+                  <ChatBox />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </UserProvider>
+    </BrowserRouter>
   );
 }
 

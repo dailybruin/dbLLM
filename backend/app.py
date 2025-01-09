@@ -65,6 +65,8 @@ safety_settings = {
     # HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE, # I'm not sure what this category is
 }
 
+print("----LOADED ENVIRONMENT VARIABLES----")
+
 @app.route('/get_message')
 def get_message():
     try:
@@ -83,6 +85,7 @@ HANDLING USER AUTHENTICATION
 """
 @app.route('/login', methods=['POST']) 
 def login():
+    print(request.json)
     TOKEN = request.json['token']
     resp = make_response('Response')
 
@@ -93,7 +96,7 @@ def login():
 
     try:
         # Verify the token using Google's OAuth2 library
-        id_info = id_token.verify_oauth2_token(TOKEN['credential'], google_requests.Request(), GOOGLE_CLIENT_ID)
+        id_info = id_token.verify_oauth2_token(TOKEN, google_requests.Request(), GOOGLE_CLIENT_ID)
 
         # Check if the email is verified and belongs to the correct domain
         email = id_info.get('email')
@@ -101,6 +104,10 @@ def login():
 
         if email_verified and email.endswith("@media.ucla.edu"):
             resp.status_code = 200
+            resp = jsonify({
+                "name": id_info.get('name'),
+                "email": email
+            })
             print("Login successful.")
         else:
             resp.status_code = 401

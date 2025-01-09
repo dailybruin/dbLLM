@@ -1,28 +1,14 @@
 import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Context/useAuth";
 
 const Login: React.FC = () => {
-  const navigate = useNavigate();
+  const { loginUser } = useAuth();
 
   return (
     <GoogleLogin
-      onSuccess={async (credentialResponse) => {
+      onSuccess={(credentialResponse) => {
         if (credentialResponse.credential) {
-          const jwt = {
-            "token": credentialResponse
-          }
-          try {
-            const response = await axios.post("http://localhost:5001/login", jwt );
-            if (response.status === 200) {
-              console.log("Login successful.");
-              navigate("/chat");
-            } else {
-              console.error("Login failed");
-            }
-          } catch (error) {
-            console.error("Error during login:", error);
-          }
+          loginUser(credentialResponse.credential);
         }
       }}
       onError={() => console.error("Login failed")}
