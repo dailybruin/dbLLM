@@ -21,22 +21,25 @@ chmod +x quick_install.sh
 
 ### Step by Step Installation (if not doing Quick Installation)
 
+#### Backend Installation
 2. Install dependencies (recommended in a virtual environment). This project runs on (any) Python version 3.9
+
 ```
 pip install -q -U google-generativeai
+pip install --upgrade google-auth
 pip install langchain
 pip install python-dotenv
-pip install jupyter
 pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
 pip install beautifulsoup4
 ```
 
-3. Create a .env file in the root directory of the project. This is the file that will store your API keys for Pinecone and Google Gemini.
+3. Create a .env file in the *backend* directory of the project. This is the file that will store your API keys for Pinecone and Google Gemini.
 
 4. Inside of the .env file, create the following variables:
 ```
 GOOGLE_GENAI_API_KEY="your_google_gemini_api_key"
+GOOGLE_CLIENT_ID = "your_client_id"
 PINECONE_API_KEY="your_pinecone_api_key"
 ```
 
@@ -45,8 +48,35 @@ PINECONE_API_KEY="your_pinecone_api_key"
 
 Replace the values in the quotes with your own API keys
 
-5. Run store.py to store articles into the database
+5. Create a .env in the *frontend* directory of the project. This is the file that will store yor ID for UCLA user authentication.
 
+6. Inside of the .env file, create the following variable:
+```
+VITE_GOOGLE_CLIENT_ID="your_vite_google_client_id"
+```
+
+Replace the value in quote with your own client ID
+
+7. Run store.py to store articles into the database
    
-7. Run query.py to run a query and get a response
+8. Run query.py to run a query and get a response
 
+#### Running the App
+Our web app's backend and frontend are separated into different folders. To build the frontend, change directory into the frontend folder and run npm install (you will have to do this every time we decide to update the frontend)
+
+```
+pip install flask
+pip install Flask-Cors
+
+cd frontend
+npm install
+```
+
+Make sure that you actually run npm install in the frontend folder and NOT the parent directory. If you run npm install in the parent directory, it will install the dependencies for the backend and not the frontend, and it will also create a package-lock.json file in the parent directory that we do not want.
+
+To run the backend, switch over to the backend folder and run python app.py
+
+```
+cd backend
+python app.py
+```

@@ -9,7 +9,7 @@ import time
 from dotenv import load_dotenv
 
 from pinecone.grpc import PineconeGRPC as Pinecone
-import google.generativeai as genai
+import google.generativeai as genai  
 
 from modules.articleCleaner import clean_article
 from modules.articleFetcher import fetchArticleById

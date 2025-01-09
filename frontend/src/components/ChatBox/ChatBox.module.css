@@ -1,0 +1,47 @@
+/* Important: The parent element (.chatBox) needs to have relative positioning */
+.chatBox {
+    grid-row: span 1;
+    grid-column: span 1;
+    height: 100%;
+    padding: 15px;
+    position: relative; /* Required for absolute positioning of children */
+}
+
+.textContainer {
+    width: 100%;
+    height: 80px;
+}
+
+.textarea {
+    display: flex;
+    justify-content: center;
+    width: 100%; 
+    height: 100%;
+    border-radius: 12px; 
+    padding: 10px; 
+    padding-left: 20px;
+    box-sizing: border-box;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.submitButton {
+    position: absolute;
+    top: 50%; /* For vertical centering */
+    right: 20px;
+    transform: translateY(-50%); /* Adjust for exact vertical centering */
+    padding: 10px 38px;
+    color: black;
+    background-color: rgb(70, 175, 237);
+    cursor: pointer;
+    border-radius: 20px;
+    z-index: 1;
+}
+
+.responseText {
+    text-align: left;
+    font-size: 20px;
+    line-height: 1.8;
+    padding: 20px;
+}
+
