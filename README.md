@@ -32,6 +32,8 @@ pip install python-dotenv
 pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
 pip install beautifulsoup4
+pip install flask
+pip install Flask-Cors
 ```
 
 3. Create a .env file in the *backend* directory of the project. This is the file that will store your API keys for Pinecone and Google Gemini.
@@ -57,26 +59,39 @@ VITE_GOOGLE_CLIENT_ID="your_vite_google_client_id"
 
 Replace the value in quote with your own client ID
 
-7. Run store.py to store articles into the database
-   
-8. Run query.py to run a query and get a response
+<br>
 
-#### Running the App
-Our web app's backend and frontend are separated into different folders. To build the frontend, change directory into the frontend folder and run npm install (you will have to do this every time we decide to update the frontend)
+### Running the App
+Our web app's backend and frontend are separated into different folders, and each must be started independently. 
+
+#### Building Frontend
+To build the frontend, change directory into the frontend folder and run npm install (you will have to do this every time we decide to update the frontend). Then, npm run dev starts the development server.
 
 ```
-pip install flask
-pip install Flask-Cors
-
 cd frontend
 npm install
+npm run dev
 ```
 
 Make sure that you actually run npm install in the frontend folder and NOT the parent directory. If you run npm install in the parent directory, it will install the dependencies for the backend and not the frontend, and it will also create a package-lock.json file in the parent directory that we do not want.
 
-To run the backend, switch over to the backend folder and run python app.py
+#### Building Backend
+To run the backend, switch over to the backend folder and run python3 app.py. This can be done in a new terminal window.
 
 ```
 cd backend
-python app.py
+python3 app.py
 ```
+
+#### Accessing The Website
+The website should start running in a new localhost port. Features on the website are only available if signed in with a UCLA Student Media Google Account.
+
+<br>
+
+### Other Features
+
+* Run store.py to store articles into the database
+* Run query.py to run a query and get a response
+* Run update.py to update the vector database with all new articles
+   * On first run, you will need to change the date in lastSynced.txt to get articles only published *after* that date
+   * If there's no date in lastSynced.txt or the date is in the incorrect format, update.py will not run correctly
