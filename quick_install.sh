@@ -15,6 +15,22 @@ else
   echo "You have not toggled the -conda flag. You are responsible for managing the dependency conflicts. To install using a conda environment, use the -conda flag"
 fi
 
+echo "Starting installation process..."
+echo "Please make sure that you are installing these packages into the correct environment. Once you have verified that, enter 'CONTINUE' to continue with the installation"
+
+
+# Wait for the correct keyword
+keyword="CONTINUE"
+while true; do
+    read -p "Enter 'CONTINUE' to proceed with the installation " userInput
+    if [[ "$userInput" == "$keyword" ]]; then
+        echo "Continuing with installation..."
+        break
+    else
+        echo "Please enter 'CONTINUE' to continue with the installation process."
+    fi
+done
+
 pip install -q -U google-generativeai
 pip install --upgrade google-auth
 pip install langchain
