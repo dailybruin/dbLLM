@@ -35,7 +35,6 @@ pip install -q -U google-generativeai
 pip install --upgrade google-auth
 pip install langchain
 pip install python-dotenv
-pip install jupyter # jupyter notebooks is for experimental scripting - this should be removed after deployment
 pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
 pip install beautifulsoup4

@@ -23,13 +23,12 @@ chmod +x quick_install.sh
 
 #### Backend Installation
 2. Install dependencies (recommended in a virtual environment). This project runs on (any) Python version 3.9
-<!-- Don't forget to remove jupyter installation in prod. -->
+
 ```
 pip install -q -U google-generativeai
 pip install --upgrade google-auth
 pip install langchain
 pip install python-dotenv
-pip install jupyter
 pip install "pinecone-client[grpc]"
 pip install -U "protobuf==5.26.1"
 pip install beautifulsoup4
