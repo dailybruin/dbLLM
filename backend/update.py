@@ -88,7 +88,7 @@ clean_all_articles(articles)
 # Generate embeddings
 embeddings = []
 ARTICLES_LEN = len(articles)
-update_factor = max(1, len(articles) // 100)
+update_factor = max(1, ARTICLES_LEN // 50)
 
 print(f"Generating embeddings for {ARTICLES_LEN} articles")
 
