@@ -8,10 +8,13 @@ git clone https://github.com/dailybruin/dbLLM
 ```
 
 ### Quick Installation (Fastest)
-We have taken the liberty of creating a shell script to get everything installed properly with just two quick commands! 
-However, if you would like to go through every step yourself, the full instructions are listed below. This shortcut command creates a conda environment, installs all dependencies, and creates a .env file for you (if it doesn't already exist)
+* We have taken the liberty of creating a shell script to get everything installed properly with just two quick commands!
+* However, if you would like to go through every step yourself, the full instructions are listed below. This shortcut command creates a conda environment, installs all dependencies, and creates a .env file for you (if it doesn't already exist)
 
-If you want to create the conda environment as well, use the -conda flag when running the shell script (./quick_install.sh -conda)
+<br>
+
+* If you want to create the conda environment as well, use the -conda flag when running the shell script (./quick_install.sh -conda).
+  * Otherwise, <ins>ensure that you are running this in your preferred environment</ins>
 
 In your (Linux/Mac) terminal: 
 ```
