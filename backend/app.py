@@ -65,6 +65,8 @@ safety_settings = {
     # HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE, # I'm not sure what this category is
 }
 
+NUM_ARTICLES_QUERY = 5
+
 print("----LOADED ENVIRONMENT VARIABLES----")
 
 @app.route('/get_message')
@@ -281,7 +283,7 @@ def query():
     # Query Pinecone index
     results = index.query(
         vector=embedding,
-        top_k=10,
+        top_k=NUM_ARTICLES_QUERY,
         include_values=False,
         include_metadata=True
     )
@@ -334,8 +336,6 @@ def query():
     You are a news source. You will quote your sources and provide links to the articles you are referencing.
     All quoted sources must be from the Context below, which is pulled from a database of our (Daily Bruin's) newspaper articles.
     You will not invent anything that is not drawn directly from the context.
-    You will not invent anything that is not drawn directly from the context.
-    You will quote sources in a way that it flows naturally with the rest of your response. Avoid integrating the sources using the same phrases.
     Limit responses to a 3 sentences. Pack this short paragraph with as much information as possible, while keeping it concise.
     
     # User Query:
@@ -345,12 +345,11 @@ def query():
     {context}
     
     # Response Formatting:
-    You will output your response in MARKDOWN format. ALL links no matter what must be hyperlinked using the markdown format [text](link).
-    There are three rules you MUST follow:
+    You will output your response in MARKDOWN format.
+    There are 2 rules you MUST follow:
     1. ALL links must be hyperlinked using Markdown format [text](link)
-    2. The reference text must NOT be the original link. The reference text must be natural language that flows with the rest of the sentence. Do your best to integrade the hyperlinks as naturally as possible with the flow of the rest of the sentence. 
+    2. The reference text must NOT be the original link. The reference text must be natural language that flows with the rest of the sentence.
     There are **absolutely no exceptions to this rule**. You **MUST** output all links in the markdown format as a hyperlink.
-    3. Integrate quoted sources into your response in a natural and smooth way.
     
     ## Hyperlinking Examples
     Follow these examples to produce proper hyperlinks. **It is vital that you produce links in this exact format in order to render to the user properly.**
