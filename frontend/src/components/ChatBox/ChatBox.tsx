@@ -17,8 +17,15 @@ const ChatBox: React.FC = () => {
 
       setResponse(res.data.response);
     } catch (error) {
-      console.error("Error communicating with backend:", error);
-      setResponse("Unauthorized. Please login to ask Oliver!");
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 401) {
+          setResponse("Unauthorized. Please login to ask Oliver!");
+        } else {
+          setResponse("An error occurred. Please try again later.");
+        }
+      } else {
+        setResponse("An unexpected error occurred.");
+      }
     }
   };
 
