@@ -1,5 +1,5 @@
-import styles from "./Sidebar.module.css"; // Import your custom CSS
-import { useState, useEffect, useRef } from 'react';
+import styles from "./SideBar.module.css"; // Import your custom CSS
+import { useState, useEffect } from 'react';
 
 const Sidebar = () => {  
 
