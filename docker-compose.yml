@@ -13,4 +13,4 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     ports:
-      - "4173:4173"  # Expose frontend port to the outside world
+      - "5173:4173"  # Expose frontend port to the outside world
