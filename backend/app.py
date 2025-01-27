@@ -123,47 +123,94 @@ def login():
 """
 LIVE TIMING FUNCTIONS
 """
-timer_start_time = 0  # Initialize outside function
+timer_start_time = None
+timer_running = False
 timer_duration = 0
-timer_running = False # Add timer_running state
-
+timer_start_timeR = None
+timer_runningR = False
+timer_durationR = 0
 def timer():
     """
+    Toggle timer function that starts/stops the timer.
     Returns the timer's state and duration.
     """
     global timer_start_time, timer_running, timer_duration
-
-    if not timer_running: # Check timer_running state
+    
+    if not timer_running:
         # Start the timer
         timer_start_time = time.time()
-        timer_running = True # Set timer_running to True when timer starts
-        return "started"
+        timer_running = True
+        return jsonify({"status": "started"})
     else:
         # Stop the timer
-        timer_running = False # Set timer_running to False when timer stops
+        timer_running = False
         end_time = time.time()
         timer_duration = end_time - timer_start_time
-        return "stopped"
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_duration)
+        })
+
+@app.route('/api/get_timer/')
+def get_timer():
+    global timer_start_time, timer_running, timer_duration
+    
+    if timer_start_time and timer_running:
+        current_time = time.time()
+        current_duration = current_time - timer_start_time
+        return jsonify({
+            "status": "running",
+            "duration": str(current_duration)
+        })
+    elif not timer_running and timer_start_time:
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_duration)
+        })
+    else:
+        return jsonify({"status": "waiting"})
     
 # Response Timer
-timer_start_timeR = 0 # Initialize outside function
-timer_durationR = 0
-
 def timerR():
     """
+    Toggle timer function that starts/stops the timer.
     Returns the timer's state and duration.
     """
-    global timer_start_timeR, timer_durationR, timer_running # added timer_running
-
-    if not timer_running: # Reuse the same running state
+    global timer_start_timeR, timer_runningR, timer_durationR
+    
+    if not timer_runningR:
         # Start the timer
         timer_start_timeR = time.time()
-        return "started"
+        timer_runningR = True
+        return jsonify({"status": "started"})
     else:
         # Stop the timer
+        timer_runningR = False
         end_time = time.time()
         timer_durationR = end_time - timer_start_timeR
-        return "stopped"
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_durationR)
+        })
+
+@app.route('/api/get_timerR/')
+def get_timerR():
+    global timer_start_timeR, timer_runningR, timer_durationR
+    
+    if timer_start_timeR and timer_runningR:
+        current_time = time.time()
+        current_duration = current_time - timer_start_time
+        return jsonify({
+            "status": "running",
+            "duration": str(current_duration)
+        })
+    elif not timer_runningR and timer_start_timeR:
+        return jsonify({
+            "status": "stopped",
+            "duration": str(timer_durationR)
+        })
+    else:
+        return jsonify({"status": "waiting"})
 
 # Disable logging for these constant update functions
 
@@ -326,11 +373,7 @@ def query():
         timerR()
         print(f'User: {user_query}')
         print(f'Oliver: {response.text}')
-        return jsonify({
-            "response": response.text,
-            "query_duration": query_time,
-            "response_duration": round(time.time() - timer_start_timeR, 2) # Calculate response duration here
-        })
+        return jsonify({"response": response.text})
     except Exception as e:
         print(e)
         print("Error with gemini-2.0-flash-exp. Switching models to gemini-1.5-flash")
@@ -349,11 +392,7 @@ def query():
         print("----FINISHED GENERATING RESPONSE----")
         print(f'User: {user_query}')
         print(f'Oliver: {response.text}')
-        return jsonify({
-            "response": response.text,
-            "query_duration": query_time,
-            "response_duration": round(time.time() - timer_start_timeR, 2) # Calculate response duration here
-        })
+        return jsonify({"response": response.text})
 
 
 if __name__ == '__main__':
