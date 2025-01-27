@@ -75,7 +75,7 @@ const Sidebar = () => {
     };
 
     // Fetch timer status every second
-    const statusIntervalId = setInterval(fetchTimer, 10);
+    const statusIntervalId = setInterval(fetchTimer, 1000);
     // Update display every 10ms
     const displayIntervalId = setInterval(updateTimer, 10);
 
