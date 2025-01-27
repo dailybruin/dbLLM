@@ -69,7 +69,7 @@ NUM_ARTICLES_QUERY = 5
 
 print("----LOADED ENVIRONMENT VARIABLES----")
 
-@app.route('/get_message')
+@app.route('/api/get_message/')
 def get_message():
     try:
         response = model.generate_content(
@@ -85,7 +85,7 @@ def get_message():
 """
 HANDLING USER AUTHENTICATION
 """
-@app.route('/login', methods=['POST']) 
+@app.route('/api/login/', methods=['POST']) 
 def login():
     print(request.json)
     TOKEN = request.json['token']
@@ -151,7 +151,7 @@ def timer():
             "duration": str(timer_duration)
         })
 
-@app.route('/get_timer')
+@app.route('/api/get_timer/')
 def get_timer():
     global timer_start_time, timer_running, timer_duration
     
@@ -193,7 +193,7 @@ def timerR():
             "duration": str(timer_durationR)
         })
 
-@app.route('/get_timerR')
+@app.route('/api/get_timerR/')
 def get_timerR():
     global timer_start_timeR, timer_runningR, timer_durationR
     
@@ -233,7 +233,7 @@ def isAuthenticated(TOKEN: str) -> bool:
     except ValueError as e:
         return False
     
-@app.route('/query', methods=['GET'])
+@app.route('/api/query/', methods=['GET'])
 def query():
     if "token" not in request.args:
         return jsonify({"response": "Unauthorized. Please sign in with a student media account."}), 401

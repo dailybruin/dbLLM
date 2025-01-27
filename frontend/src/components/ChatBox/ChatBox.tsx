@@ -4,6 +4,8 @@ import axios from "axios";
 
 import styles from "./ChatBox.module.css";
 
+//const BACKEND_DOMAIN = import.meta.env.BACKEND_DOMAIN;
+
 const ChatBox: React.FC = () => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
@@ -12,7 +14,7 @@ const ChatBox: React.FC = () => {
     try {
       const token = localStorage.getItem("token") || "";
       const res = await axios.get(
-        `http://localhost:5001/query?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
+        `https://k8s.dailybruin.com/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
       );
 
       setResponse(res.data.response);

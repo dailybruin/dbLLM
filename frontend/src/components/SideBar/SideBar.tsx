@@ -1,6 +1,9 @@
 import styles from "./SideBar.module.css"; // Import your custom CSS
 import { useState, useEffect } from 'react';
 
+//const BACKEND_DOMAIN = import.meta.env.BACKEND_DOMAIN;
+
+
 const Sidebar = () => {  
 
   const [message, setMessage] = useState<string | null>('Loading...'); // Set default state to loading
@@ -8,7 +11,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await fetch('http://localhost:5001/get_message'); // Adjust the backend URL if needed
+        const response = await fetch(`https://k8s.dailybruin.com/api/get_message/`); // Adjust the backend URL if needed
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -34,7 +37,7 @@ const Sidebar = () => {
     
     const fetchTimer = async () => {
       try {
-        const response = await fetch('http://localhost:5001/get_timer');
+        const response = await fetch(`https://k8s.dailybruin.com/api/get_timer/`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -93,7 +96,7 @@ const Sidebar = () => {
     
     const fetchTimer = async () => {
       try {
-        const response = await fetch('http://localhost:5001/get_timerR');
+        const response = await fetch(`https://k8s.dailybruin.com/api/get_timerR/`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }

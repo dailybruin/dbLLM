@@ -17,6 +17,9 @@ type Props = { children: React.ReactNode };
 
 const UserContext = createContext<UserContextType>({} as UserContextType);
 
+//const BACKEND_DOMAIN = import.meta.env.BACKEND_DOMAIN;
+
+
 export const UserProvider = ({ children }: Props) => {
   const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(null);
@@ -37,7 +40,7 @@ export const UserProvider = ({ children }: Props) => {
 
   const loginUser = async (jwt_token: string) => {
     await axios
-      .post("http://localhost:5001/login", {"token": jwt_token})
+      .post(`https://k8s.dailybruin.com/api/login/`, {"token": jwt_token})
       .then((res) => {
         if (res && res.status === 200) {
           const userObj = {
