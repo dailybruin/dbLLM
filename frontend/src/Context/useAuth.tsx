@@ -40,7 +40,7 @@ export const UserProvider = ({ children }: Props) => {
 
   const loginUser = async (jwt_token: string) => {
     await axios
-      .post(`https://k8s.dailybruin.com/api/login/`, {"token": jwt_token})
+      .post(`https://oliver.dailybruin.com/api/login/`, {"token": jwt_token})
       .then((res) => {
         if (res && res.status === 200) {
           const userObj = {

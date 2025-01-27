@@ -14,7 +14,7 @@ const ChatBox: React.FC = () => {
     try {
       const token = localStorage.getItem("token") || "";
       const res = await axios.get(
-        `https://k8s.dailybruin.com/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
+        `https://oliver.dailybruin.com/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
       );
 
       setResponse(res.data.response);
