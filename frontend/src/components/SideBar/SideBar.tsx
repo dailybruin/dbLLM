@@ -8,7 +8,7 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await fetch('backend:5001/get_message'); // Adjust the backend URL if needed
+        const response = await fetch('http://localhost:5001/get_message'); // Adjust the backend URL if needed
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -34,7 +34,7 @@ const Sidebar = () => {
     
     const fetchTimer = async () => {
       try {
-        const response = await fetch('backend:5001/get_timer');
+        const response = await fetch('http://localhost:5001/get_timer');
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
@@ -93,7 +93,7 @@ const Sidebar = () => {
     
     const fetchTimer = async () => {
       try {
-        const response = await fetch('backend:5001/get_timerR');
+        const response = await fetch('http://localhost:5001/get_timerR');
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }

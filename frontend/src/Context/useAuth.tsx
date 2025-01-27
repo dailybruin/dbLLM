@@ -37,7 +37,7 @@ export const UserProvider = ({ children }: Props) => {
 
   const loginUser = async (jwt_token: string) => {
     await axios
-      .post("backend:5001/login", {"token": jwt_token})
+      .post("http://localhost:5001/login", {"token": jwt_token})
       .then((res) => {
         if (res && res.status === 200) {
           const userObj = {

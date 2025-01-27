@@ -1,16 +1,20 @@
 services:
   backend:
+    image: dbllm-backend:v1
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend
+    platform: linux/amd64
     ports:
       - "5001:5001"  # Expose backend port internally (optional, if needed for debugging)
 
   frontend:
+    image: dbllm-frontend:v1
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
+    platform: linux/amd64
     ports:
       - "5173:4173"  # Expose frontend port to the outside world

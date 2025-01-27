@@ -12,7 +12,7 @@ const ChatBox: React.FC = () => {
     try {
       const token = localStorage.getItem("token") || "";
       const res = await axios.get(
-        `backend:5001/query?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
+        `http://localhost:5001/query?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
       );
 
       setResponse(res.data.response);
