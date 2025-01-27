@@ -9,6 +9,8 @@ COPY ./package.json .
 
 COPY ./node_modules ./node_modules
 
+COPY ./vite.config.ts .
+
 RUN yarn install
 
 COPY ./dist ./dist

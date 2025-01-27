@@ -9,4 +9,7 @@ export default defineConfig({
     port: 5173,      // Specify the port (optional if you're already using 5173)
     allowedHosts: ['Frontend'],
   },
+  preview: {
+    allowedHosts: ['Frontend'],
+  },
 });

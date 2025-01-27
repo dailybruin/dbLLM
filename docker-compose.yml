@@ -1,6 +1,6 @@
 services:
   backend:
-    image: dbllm-backend:v1
+    image: registry.digitalocean.com/dailybruin/dbllm-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -10,7 +10,7 @@ services:
       - "5001:5001"  # Expose backend port internally (optional, if needed for debugging)
 
   frontend:
-    image: dbllm-frontend:v1
+    image: registry.digitalocean.com/dailybruin/dbllm-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
