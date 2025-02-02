@@ -11,6 +11,7 @@ const ChatBox: React.FC = () => {
   const [response, setResponse] = useState("");
 
   const handleSubmit = async () => {
+    setResponse("Oliver is thinking...");
     try {
       const token = localStorage.getItem("token") || "";
       const res = await axios.get(

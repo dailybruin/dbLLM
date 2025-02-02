@@ -152,17 +152,28 @@ const Sidebar = () => {
     return seconds.toFixed(2);
   };
 
-    return (
-      <div className={styles.sidebarStyle}>
+  return (
+    <div className={styles.sidebarStyle}>
+      <div>
         <h1>Oliver Beta</h1>
         <hr className={styles.sidebarDivider} />
         <h3>{message}</h3>
         <hr className={styles.sidebarDivider} />
-        <h3 style={{ color: 'rgb(70, 175, 237)' }}>Model Query Time: {formatTime(timeElapsed)}</h3>
-        <h3 style={{ color: 'rgb(70, 175, 237)' }}>Model Response Time: {formatTime(timeElapsedR)}</h3>
-
+        <h3 style={{ color: "rgb(70, 175, 237)" }}>
+          Model Query Time: {formatTime(timeElapsed)}
+        </h3>
+        <h3 style={{ color: "rgb(70, 175, 237)" }}>
+          Model Response Time: {formatTime(timeElapsedR)}
+        </h3>
       </div>
-    );
-  };
+
+      <div>
+        <h3>Any feedback is appreciated. </h3>
+        <br />
+        <p><i>The information above is purely for beta testing.</i></p>
+      </div>
+    </div>
+  );
+};
   
-    export default Sidebar;
+export default Sidebar;
