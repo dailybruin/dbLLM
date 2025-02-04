@@ -52,4 +52,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
         placeholder="Type your message here"
       />
       <button className={styles.submitButton} onClick={handleSubmit}>Ask Oliver!</button>
-    <
+    </div>
+    
+      {/* <div>{response && <p>Response: {response}</p>}</div> */}
+      {/* <div>{response && <p>{transformTextToLinks(response)}</p>}</div> */}
+      <div>{response && <ReactMarkdown className={styles.responseText}>{response}</ReactMarkdown>}</div>
+    </div>
+  );
+};
+
+export default ChatBox;
