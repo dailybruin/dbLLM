@@ -6,7 +6,12 @@ import styles from "./ChatBox.module.css";
 
 //const BACKEND_DOMAIN = import.meta.env.BACKEND_DOMAIN;
 
-const ChatBox: React.FC = () => {
+interface ChatBoxProps {
+  onTimingUpdate: (queryTime: number, responseTime: number) => void;
+}
+
+
+const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
 
@@ -17,6 +22,11 @@ const ChatBox: React.FC = () => {
       const res = await axios.get(
         `https://oliver.dailybruin.com/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
       );
+
+      // Add these lines to handle timing data
+      if (res.data.query_time && res.data.response_time) {
+        onTimingUpdate(res.data.query_time, res.data.response_time);
+      }
 
       setResponse(res.data.response);
     } catch (error) {

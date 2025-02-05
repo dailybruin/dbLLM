@@ -242,55 +242,36 @@ def query():
     if not isAuthenticated(jwt_token):
         return jsonify({"response": "Unauthorized. Please sign in with a student media account."}), 401
     
-    # Constants used throughout
-    DATABASE_INDEX_NAME = request.args.get('index')  #get index parameter from the URL
+    DATABASE_INDEX_NAME = request.args.get('index')
     EMBEDDING_MODEL = "models/text-embedding-004"
 
-    # check if the index exists
     if DATABASE_INDEX_NAME not in pc.list_indexes().names():
         print("Invalid index name. Exiting.")
         exit()
 
-    # Wait for the index to be ready
     while not pc.describe_index(DATABASE_INDEX_NAME).status['ready']:
-        print("Waiting for index...")
         time.sleep(1)
 
-    print("Index connected.")
     index = pc.Index(DATABASE_INDEX_NAME)
-    print("----FINISHED LOADING ENVIRONMENT VARIABLES----")
 
-    """ 
-    /////////////////////////////////
-    //////  Query
-    /////////////////////////////////
-    """
-    t0 = time.time() # start timer for querying
-    timer()
-    # get query parameter from the URL
+    # Start query timer
+    t0_query = time.time()
     user_query = request.args.get('query')
-    
     if not user_query:
         return jsonify({"error": "No query parameter provided"}), 400
-    
-    print("\n----QUERYING----")
 
-    # Generate query embedding
     embedding = generateQueryEmbedding(genai=genai,
                                        embedding_model=EMBEDDING_MODEL,
                                        query=user_query)
 
-    # Query Pinecone index
     results = index.query(
         vector=embedding,
         top_k=NUM_ARTICLES_QUERY,
         include_values=False,
         include_metadata=True
     )
-    print("----FINISHED QUERYING----")
-    t1 = time.time() # stop timer for querying
-    timer()
-    query_time = round(t1-t0, 2)
+    t1_query = time.time()
+    query_time = round(t1_query - t0_query, 2)
     print(f'Querying took ~{query_time} seconds.')
     """ 
     /////////////////////////////////
@@ -300,7 +281,7 @@ def query():
 
     print("\n----GENERATING RESPONSE----")
     
-    t0 = time.time() # start timer for generating response
+    t0_response = time.time() # start timer for generating response
     timerR()
     # Generate context for the response
     context = ""
@@ -368,17 +349,15 @@ def query():
             instructions,
             safety_settings=safety_settings
         )
-        # Return the response as JSON
-        print("----FINISHED GENERATING RESPONSE----")
-        timerR()
-        print(f'User: {user_query}')
-        print(f'Oliver: {response.text}')
-        return jsonify({"response": response.text})
+        t1_response = time.time()
+        response_time = round(t1_response - t0_response, 2)
+        return jsonify({
+            "response": response.text,
+            "query_time": query_time,
+            "response_time": response_time
+        })
     except Exception as e:
         print(e)
-        print("Error with gemini-2.0-flash-exp. Switching models to gemini-1.5-flash")
-        
-        # Initialize the model with "gemini-1.5-flash"
         model_old = genai.GenerativeModel(
             model_name="gemini-1.5-flash",
             generation_config=generation_config,
@@ -387,12 +366,13 @@ def query():
             instructions,
             safety_settings=safety_settings
         )
-        timerR()
-        # Return the response as JSON
-        print("----FINISHED GENERATING RESPONSE----")
-        print(f'User: {user_query}')
-        print(f'Oliver: {response.text}')
-        return jsonify({"response": response.text})
+        t1_response = time.time()
+        response_time = round(t1_response - t0_response, 2)
+        return jsonify({
+            "response": response.text,
+            "query_time": query_time,
+            "response_time": response_time
+        })
 
 
 if __name__ == '__main__':
