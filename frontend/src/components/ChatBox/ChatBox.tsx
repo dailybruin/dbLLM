@@ -20,7 +20,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
     try {
       const token = localStorage.getItem("token") || "";
       const res = await axios.get(
-        `http://localhost:5001/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
+        `https://oliver.dailybruin.com/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
       );
 
       // Add these lines to handle timing data

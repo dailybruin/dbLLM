@@ -14,7 +14,7 @@ const Sidebar = ({ queryTime, responseTime }: SidebarProps) => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await fetch(`http://localhost:5001/api/get_message/`);
+        const response = await fetch(`https://oliver.dailybruin.com/api/get_message/`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         setMessage("API Status: " + data.message + "\nModel: " + data.model);
