@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import styles from "./ChatBox.module.css";
 
@@ -14,6 +15,7 @@ interface ChatBoxProps {
 const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const handleSubmit = useCallback(async () => {
     if (!message.trim()) return; // Prevent empty message submission
@@ -35,6 +37,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 401) {
           setResponse("Unauthorized. Please login to ask Oliver!");
+          
+          // Remove any local storage, and redirect to login page
+          localStorage.clear();
+          navigate("/");
+
         } else {
           setResponse("An error occurred. Please try again later.");
         }
