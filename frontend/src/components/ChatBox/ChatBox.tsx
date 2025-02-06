@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import ReactMarkdown from 'react-markdown'
+import React, { useState, useEffect, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
 import axios from "axios";
 
 import styles from "./ChatBox.module.css";
@@ -15,7 +15,9 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
+    if (!message.trim()) return; // Prevent empty message submission
+
     setResponse("Oliver is thinking...");
     try {
       const token = localStorage.getItem("token") || "";
@@ -40,23 +42,47 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
         setResponse("An unexpected error occurred.");
       }
     }
-  };
+  }, [message, onTimingUpdate]);
+
+  useEffect(() => {
+    const keyDownHandler = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    };
+
+    document.addEventListener("keydown", keyDownHandler);
+    return () => {
+      document.removeEventListener("keydown", keyDownHandler);
+    };
+  }, [handleSubmit]);
 
   return (
     <div className={styles.textContainer}>
       <div className={styles.chatBox}>
-      <textarea
-        className = {styles.textarea}
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type your message here"
-      />
-      <button className={styles.submitButton} onClick={handleSubmit}>Ask Oliver!</button>
-    </div>
-    
-      {/* <div>{response && <p>Response: {response}</p>}</div> */}
-      {/* <div>{response && <p>{transformTextToLinks(response)}</p>}</div> */}
-      <div>{response && <ReactMarkdown className={styles.responseText}>{response}</ReactMarkdown>}</div>
+        <textarea
+          className={styles.textarea}
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="Type your message here"
+        />
+        <button
+          className={styles.submitButton}
+          onClick={handleSubmit}
+          disabled={!message.trim()}
+        >
+          Ask Oliver!
+        </button>
+      </div>
+
+      <div>
+        {response && (
+          <ReactMarkdown className={styles.responseText}>
+            {response}
+          </ReactMarkdown>
+        )}
+      </div>
     </div>
   );
 };

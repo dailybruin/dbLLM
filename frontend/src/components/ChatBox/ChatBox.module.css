@@ -45,3 +45,7 @@
     padding: 20px;
 }
 
+.submitButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
