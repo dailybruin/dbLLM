@@ -1,63 +1,50 @@
-
 def embedArticle(genai, embeddings: list, embedding_model: str, article):
     """
-        Embed an article using a google gemini embedding model and append it to the embeddings array
-
-        @param genai: The google gemini variable
-        @param embeddings: The array of embeddings that we will append to
-        @param embedding_model: As a string, what embedding model to use
-        @param article: The article, including its id, link, date, etc (not just the page content)
-        @return: None
+    Embed an article using Google Gemini and append to embeddings array.
+    @param genai: Google Gemini instance.
+    @param embeddings: List of embeddings to append to.
+    @param embedding_model: Embedding model string.
+    @param article: Article data (id, link, date, content).
     """
-    content = article['content']['rendered']
-    article_id = str(article['id'])
+    try:
+        # Extract content and generate embedding using Google Gemini
+        content = article['content']['rendered']
+        embedding_vector = genai.embed_content(model=embedding_model, content=content)['embedding']
 
-    # Generate embedding using Google Gemini
-    embedding_response = genai.embed_content(
-        model=embedding_model,
-        content=content)
-    embedding_vector = embedding_response['embedding']
-
-    # The new embedding that will be added to the embeddings array
-    new_embedding = {
-        "id": article_id,
-        "values": embedding_vector,
-        "metadata": {
-            "date": article['date'],
-            "date_gmt": article['date_gmt'],
-            "link": article['link']
+        # Construct embedding object
+        new_embedding = {
+            "id": str(article['id']),
+            "values": embedding_vector,
+            "metadata": {
+                "date": article['date'],
+                "date_gmt": article['date_gmt'],
+                "link": article['link']
+            }
         }
-    }
 
-    # Append the new embedding
-    embeddings.append(new_embedding)
+        # Append new embedding to the list
+        embeddings.append(new_embedding)
+    except Exception as e:
+        print(f"Error embedding article {article['id']}: {e}")
 
 def embedChunksAsArticle(genai, embeddings: list, embedding_model: str, article, split_texts: list):
     """
-        Embed chunks using a google gemini embedding model and append it to the embeddings array
-
-        @param genai: The google gemini variable
-        @param embeddings: The array of embeddings that we will append to
-        @param embedding_model: As a string, what embedding model to use
-        @param article: The article JSON, including its id, link, date, etc (not just the page content)
-        @param split_texts: An array holding the split version of article (only the rendered page texts, not info like date or link)
-        @return: A bool -  False if there was an error embedding, True if successful
+    Embed chunks of an article and append to embeddings array.
+    @param genai: Google Gemini instance.
+    @param embeddings: List of embeddings to append to.
+    @param embedding_model: Embedding model string.
+    @param article: Article data (id, link, date, etc).
+    @param split_texts: List of text chunks to embed.
+    @return: True if successful, False if any error occurs.
     """
-    new_embeddings = []
+    try:
+        # Iterate through text chunks and embed
+        for i, split_text in enumerate(split_texts):
+            embedding_vector = genai.embed_content(model=embedding_model, content=split_text)['embedding']
 
-    # Try embedding each text
-    for i, split_text in enumerate(split_texts):
-        try:
-            # Generate embedding using Google Gemini
-            embedding_response = genai.embed_content(
-                model=embedding_model,
-                content=split_text)
-            embedding_vector = embedding_response['embedding']
-        
-            # Append to embeddings list
-            # The id for this is a bit different, with a chunk number added to the end (to preserve unique ids)
-            new_embeddings.append({
-                "id": f"{str(article['id'])}_chunk{i}",
+            # Construct embedding for each chunk
+            chunk_embedding = {
+                "id": f"{article['id']}_chunk{i}",
                 "values": embedding_vector,
                 "metadata": {
                     "date": article['date'],
@@ -65,36 +52,26 @@ def embedChunksAsArticle(genai, embeddings: list, embedding_model: str, article,
                     "link": article['link'],
                     "chunk_total": len(split_texts)
                 }
-            })
-        # If there was an error embedding
-        except Exception as e:
-            print(e)
-            # Return false indicating error (embeddings remains unchanged)
-            return False
-    
-    # If everything was successful, append to the embeddings array
-    embeddings.extend(new_embeddings)
-    # Return True indicating success
-    return True
+            }
+
+            # Append chunk embedding to list
+            embeddings.append(chunk_embedding)
+        return True
+    except Exception as e:
+        print(f"Error embedding chunks for article {article['id']}: {e}")
+        return False
 
 def generateQueryEmbedding(genai, embedding_model: str, query: str):
     """
-    Convert a query to an embedding using google gemini
-
-    @param genai: The google gemini variable
-    @param embedding_model: As a string, what embedding model to use
-    @param query: The query string
+    Convert a query string into an embedding.
+    @param genai: Google Gemini instance.
+    @param embedding_model: Embedding model string.
+    @param query: Query string.
+    @return: Query embedding if successful, None otherwise.
     """
-    # Convert the query to an embedding
     try:
-        embedding = genai.embed_content(
-            model=embedding_model,
-            content=query
-        )
-
-        # Return the query embedding
-        return embedding["embedding"] 
-    # If an error, return None
+        # Generate query embedding using Google Gemini
+        return genai.embed_content(model=embedding_model, content=query)["embedding"]
     except Exception as e:
         print(f"Error generating query embedding: {e}")
         return None
