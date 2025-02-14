@@ -8,6 +8,14 @@ COPY ./app.py .
 
 COPY ./.env .
 
+COPY ./update.py .
+
+COPY ./lastSynced.txt . 
+
+COPY ./modules/articleCleaner.py ./modules/articleCleaner.py
+
+COPY ./modules/embeddingFuncs.py ./modules/embeddingFuncs.py
+
 RUN pip install --no-cache-dir -q -U \
     google-generativeai \
     google-auth \
