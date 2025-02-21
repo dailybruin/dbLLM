@@ -12,10 +12,11 @@ import google.generativeai as genai
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from modules.articleCleaner import clean_all_articles
-from modules.articleFetcher import fetchArticles
 from modules.articleFetcher import getLatestArticlesByDate
 from modules.embeddingFuncs import embedArticle
 from modules.embeddingFuncs import embedChunksAsArticle
+
+print("\n----UPDATING DATABASE----\n")
 
 print("\n----LOADING ENVIRONMENT VARIABLES----")
 # Load environment variables from .env file
@@ -32,7 +33,7 @@ genai.configure(api_key=GOOGLE_GENAI_API_KEY)
 pc = Pinecone(api_key=PINECONE_API_KEY)
 
 # Constants used throughout
-DATABASE_INDEX_NAME = str(input("Enter database index name: "))
+DATABASE_INDEX_NAME = "main"
 EMBEDDING_MODEL = "models/text-embedding-004"
 MODEL_MAX_CHUNKS = 9500
 CHUNK_OVERLAP = 200
@@ -67,14 +68,6 @@ except Exception as e:
     print(e)
     print("Last synced time is not in correct format. Exiting.")
     exit()
-
-# Update lastSynced with current time
-file = open('./lastSynced.txt', 'w')
-
-curr_time = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-file.write( curr_time )
-
-file.close()
 
 """ 
 /////////////////////////////////
@@ -172,3 +165,12 @@ print("---------------------------------------------------------")
 print(f"\nSuccessfully upserted {len(embeddings)} embeddings.\n")
 print("---------------------------------------------------------")
 
+# Update lastSynced with current time
+file = open('./lastSynced.txt', 'w')
+
+curr_time = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+file.write( curr_time )
+
+file.close()
+
+print("\n----FINISHED UPDATING DATABASE----\n")
