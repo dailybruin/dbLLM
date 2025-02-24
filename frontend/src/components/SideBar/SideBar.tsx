@@ -11,10 +11,12 @@ interface SidebarProps {
 const Sidebar = ({ queryTime, responseTime }: SidebarProps) => {  
   const [message, setMessage] = useState<string | null>('Loading...');
 
+  const BACKEND_DOMAIN = import.meta.env.VITE_BACKEND_DOMAIN;
+
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await fetch(`https://oliver.dailybruin.com/api/get_message/`);
+        const response = await fetch(`${BACKEND_DOMAIN}/api/get_message/`);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         setMessage("API Status: " + data.message + "\nModel: " + data.model);

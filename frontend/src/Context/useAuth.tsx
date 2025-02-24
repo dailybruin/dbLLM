@@ -27,6 +27,8 @@ export const UserProvider = ({ children }: Props) => {
 
   const [isReady, setIsReady] = useState(false);
 
+  const BACKEND_DOMAIN = import.meta.env.VITE_BACKEND_DOMAIN;
+
   useEffect(() => {
     const user = localStorage.getItem("user");
     const token = localStorage.getItem("token");
@@ -40,7 +42,7 @@ export const UserProvider = ({ children }: Props) => {
 
   const loginUser = async (jwt_token: string) => {
     await axios
-      .post(`https://oliver.dailybruin.com/api/login/`, {"token": jwt_token})
+      .post(`${BACKEND_DOMAIN}/api/login/`, {"token": jwt_token})
       .then((res) => {
         if (res && res.status === 200) {
           const userObj = {

@@ -16,6 +16,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
   const [message, setMessage] = useState("");
   const [response, setResponse] = useState("");
   const navigate = useNavigate(); // Initialize useNavigate
+  const BACKEND_DOMAIN = import.meta.env.VITE_BACKEND_DOMAIN
 
   const handleSubmit = useCallback(async () => {
     if (!message.trim()) return; // Prevent empty message submission
@@ -24,7 +25,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ onTimingUpdate }) => {
     try {
       const token = localStorage.getItem("token") || "";
       const res = await axios.get(
-        `https://oliver.dailybruin.com/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
+        `${BACKEND_DOMAIN}/api/query/?index=main&query=${encodeURIComponent(message)}&token=${encodeURIComponent(token)}`
       );
 
       // Add these lines to handle timing data
