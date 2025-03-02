@@ -48,7 +48,7 @@ generation_config = {
   "max_output_tokens": 2048, # you can control the length of output
 }
 
-model_name = "gemini-2.0-flash-exp"
+model_name = "gemini-2.0-flash-lite"
 #model_name = "gemini-1.5-flash-8b"
 model = genai.GenerativeModel(
   model_name= model_name,
@@ -65,7 +65,7 @@ safety_settings = {
     # HarmCategory.HARM_CATEGORY_UNSPECIFIED: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE, # I'm not sure what this category is
 }
 
-NUM_ARTICLES_QUERY = 5
+NUM_ARTICLES_QUERY = 8
 
 print("----LOADED ENVIRONMENT VARIABLES----")
 
@@ -273,6 +273,7 @@ def query():
     t1_query = time.time()
     query_time = round(t1_query - t0_query, 2)
     print(f'Querying took ~{query_time} seconds.')
+    print(results)
     """ 
     /////////////////////////////////
     //////  Generate Response
@@ -299,18 +300,21 @@ def query():
 
         # Add context to feed into LLM
         link = result['metadata']['link']
+        date = result['metadata']['date']
         context += f"""\nARTICLE START (Source: {link})\n
+        Date Written: {date}\n
         {cleanedArticle}
         \nARTICLE END\n
         """
 
+    print(context)
     instructions = f"""
     # Who You Are:
     You are an advanced RAG LLM named Oliver, serving the UCLA Daily Bruin Newspaper.
     Given a user query, do your best to answer the question using the context provided, which will be embedded articles.
     
-    However, there is a possibility that the user is asking a question that is not at all related to the Daily Bruin Newspaper articles.
-    In that case, you must refuse to assist and insist that you can only answer queries related to the Daily Bruin (be nice though).
+    Do your best to answer the user's query based on the context retrieved from the Daily Bruin database. 
+    Only refuse to assist if the user's request is dangerous or the daily bruin has not covered the topic.
     
     # Instructions
     ## Response Guidelines
