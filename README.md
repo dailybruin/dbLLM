@@ -94,6 +94,7 @@ The website should start running in a new localhost port. Features on the websit
 <br>
 
 ### Other Features
+-> Here's a link to the [technical outline](https://docs.google.com/document/d/1mlp1-htnD-S_U9HNwkMEw_ET3oo_sdBvaeePSHk90zc/edit?usp=sharing) if you need more insight into how this works.
 
 * Run store.py to store articles into the database
 * Run query.py to run a query and get a response
