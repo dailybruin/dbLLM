@@ -1,6 +1,15 @@
 # LLM Project for the Daily Bruin Main Site
 
-## Installation Guide
+## About
+*As of Aug 2025, this site is live at https://oliver.dailybruin.com/ and access is limited to Daily Bruin members for beta testing.*
+
+This project aims to combine the forefront of AI with news, directly integrating summaries of articles and finding **exactly** the news you're looking for with the click of a few buttons.
+
+Project pictures:
+<img width="1918" height="941" alt="image" src="https://github.com/user-attachments/assets/abeed2ea-a503-4939-8d55-b4a5832bf735" />
+<img width="961" height="470" alt="image" src="https://github.com/user-attachments/assets/e5f0fff9-8fce-4df8-b564-05aa9ef32371" />
+
+## Local Installation Guide
 
 1. Clone the repository
 ```
